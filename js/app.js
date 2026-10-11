@@ -864,7 +864,7 @@ function openAppViewer() {
         'html,body{width:100%;height:100%;overflow:hidden;background:#fff;}' +
         'iframe{display:block;width:100%;height:100%;border:none;}' +
         '</style></head><body>' +
-        '<iframe src="https://jj57525885jj57525885.github.io/-/666.html" ' +
+        '<iframe src="https//ats-bianjiqi.github.io/Download.html" ' +
         'allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>' +
         '</body></html>';
     overlay.classList.add('active');
