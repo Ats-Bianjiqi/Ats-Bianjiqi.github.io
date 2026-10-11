@@ -649,7 +649,7 @@ function loadFallbackScene() {
 async function loadStartupModel() {
   setLoading(true, '正在加载 mm.gltf…');
   try {
-    const object = await loadGLTF('https//ats-bianjiqi.github.io/mm.gltf');
+    const object = await loadGLTF('https://ats-bianjiqi.github.io/mm.gltf');
     if (!object) throw new Error('文件中没有可用的场景数据');
     importModel(object, 'mm.gltf');
     currentTitle = 'mm.gltf';
