@@ -1,0 +1,79 @@
+/* ============================================================
+   液态玻璃模式（Liquid Glass · iOS 26 风格）· 浅色主题（乳白玻璃）
+   算法来源：liquid-glass 中文版（archisvaze/liquid-glass，MIT）
+   仅在 body.ui-liquid 时生效；默认「原样」零变化。
+   原理：::after = CSS backdrop-filter blur 磨砂（z-index:-1，
+        全浏览器保证铺满整个元素）；::before = 着色 / 内阴影 /
+        顶部高光（z-index:1）。不依赖 SVG 滤镜，无兼容性问题。
+   ============================================================ */
+
+/* ============================================================
+   液态 + 浅色主题：乳白玻璃 + 深色文字
+   ============================================================ */
+/* 主体结构：深色半透明 → 乳白半透明（否则浅色主题下文字不可读） */
+body.ui-liquid.ui-liquid.light-theme { background: #e9eef5 !important; }
+body.ui-liquid.ui-liquid.light-theme .toolbar { background: rgba(255, 255, 255, .78) !important; }
+body.ui-liquid.ui-liquid.light-theme .sidebar { background: rgba(255, 255, 255, .82) !important; }
+body.ui-liquid.ui-liquid.light-theme .editor-area { background: rgba(255, 255, 255, .9) !important; }
+body.ui-liquid.ui-liquid.light-theme .project-list-view { background: rgba(255, 255, 255, .38) !important; }
+body.ui-liquid.ui-liquid.light-theme button {
+    background: rgba(255, 255, 255, .4) !important;
+    border-color: rgba(255, 255, 255, .75) !important;
+    color: #1c2733 !important;
+    text-shadow: none !important;
+}
+body.ui-liquid.ui-liquid.light-theme button::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .06) 45%, rgba(255, 255, 255, .32));
+}
+body.ui-liquid.ui-liquid.light-theme button:hover::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, .12) 45%, rgba(255, 255, 255, .42));
+}
+body.ui-liquid.ui-liquid.light-theme .modal,
+body.ui-liquid.ui-liquid.light-theme .tools-menu,
+body.ui-liquid.ui-liquid.light-theme .zip-menu,
+body.ui-liquid.ui-liquid.light-theme .warn-panel,
+body.ui-liquid.ui-liquid.light-theme .toast,
+body.ui-liquid.ui-liquid.light-theme .paste-progress {
+    background: rgba(255, 255, 255, .52) !important;
+    border-color: rgba(255, 255, 255, .85) !important;
+    color: #22303f !important;
+}
+body.ui-liquid.ui-liquid.light-theme .project-card {
+    background: rgba(255, 255, 255, .42) !important;
+    border-color: rgba(255, 255, 255, .8) !important;
+    color: #22303f !important;
+}
+body.ui-liquid.ui-liquid.light-theme .file-tab {
+    background: rgba(255, 255, 255, .38) !important;
+    color: #22303f !important;
+}
+body.ui-liquid.ui-liquid.light-theme .file-tab.active {
+    background: rgba(14, 99, 156, .3) !important;
+    color: #fff !important;
+}
+/* 浅色玻璃上的文字统一转深色 */
+body.ui-liquid.ui-liquid.light-theme .modal h3,
+body.ui-liquid.ui-liquid.light-theme .settings-label,
+body.ui-liquid.ui-liquid.light-theme .settings-tip,
+body.ui-liquid.ui-liquid.light-theme .fl-sub,
+body.ui-liquid.ui-liquid.light-theme .fl-globe,
+body.ui-liquid.ui-liquid.light-theme .warn-panel-header,
+body.ui-liquid.ui-liquid.light-theme .warn-item,
+body.ui-liquid.ui-liquid.light-theme .warn-empty,
+body.ui-liquid.ui-liquid.light-theme .toast,
+body.ui-liquid.ui-liquid.light-theme .paste-progress-text,
+body.ui-liquid.ui-liquid.light-theme .md-title,
+body.ui-liquid.ui-liquid.light-theme .fv-name,
+body.ui-liquid.ui-liquid.light-theme .fv-meta,
+body.ui-liquid.ui-liquid.light-theme .fv-sub { color: #2c3a4d !important; }
+/* 告警面板头部：基色为深色，浅色玻璃下转乳白 */
+body.ui-liquid.ui-liquid.light-theme .warn-panel-header {
+    background: rgba(255, 255, 255, .55) !important;
+    border-bottom-color: rgba(0, 0, 0, .08) !important;
+}
+
+/* ---------- 无障碍：系统开启「减弱动态效果」时去掉过渡 ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .liquid-bg { transition: none; }
+    body.ui-liquid.ui-liquid button { transition: none; }
+}

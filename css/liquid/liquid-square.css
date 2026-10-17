@@ -1,0 +1,33 @@
+/* ============================================================
+   液态玻璃 · 方角模式（body.ui-liquid-sq）
+   把液态玻璃的圆角压小为 2px 近直角；仅液态模式下生效。
+   伪元素 ::before/::after 均为 border-radius: inherit，自动跟随。
+   ============================================================ */
+/* 按钮（通用 14px → 方角） */
+body.ui-liquid-sq.ui-liquid button {
+    border-radius: 2px !important;
+}
+/* 源码切换胶囊按钮（999px → 方角） */
+body.ui-liquid-sq.ui-liquid .src-toggle-list {
+    border-radius: 2px !important;
+}
+/* 浮动面板（警告条 / toast / 粘贴进度） */
+body.ui-liquid-sq.ui-liquid .warn-panel,
+body.ui-liquid-sq.ui-liquid .toast,
+body.ui-liquid-sq.ui-liquid .paste-progress {
+    border-radius: 2px !important;
+}
+/* 弹窗与下拉菜单 */
+body.ui-liquid-sq.ui-liquid .modal,
+body.ui-liquid-sq.ui-liquid .tools-menu,
+body.ui-liquid-sq.ui-liquid .zip-menu {
+    border-radius: 2px !important;
+}
+/* 项目卡片 */
+body.ui-liquid-sq.ui-liquid .project-card {
+    border-radius: 2px !important;
+}
+/* 文件标签（仅顶部圆角 → 方角） */
+body.ui-liquid-sq.ui-liquid .file-tab {
+    border-radius: 2px 2px 0 0 !important;
+}

@@ -1,0 +1,66 @@
+/* ============================================================
+   液态玻璃模式（Liquid Glass · iOS 26 风格）· 浮动面板与弹窗
+   算法来源：liquid-glass 中文版（archisvaze/liquid-glass，MIT）
+   仅在 body.ui-liquid 时生效；默认「原样」零变化。
+   原理：::after = CSS backdrop-filter blur 磨砂（z-index:-1，
+        全浏览器保证铺满整个元素）；::before = 着色 / 内阴影 /
+        顶部高光（z-index:1）。不依赖 SVG 滤镜，无兼容性问题。
+   ============================================================ */
+
+/* ============================================================
+   浮动面板（不滚动）：完整玻璃
+   ============================================================ */
+body.ui-liquid.ui-liquid .warn-panel,
+body.ui-liquid.ui-liquid .toast,
+body.ui-liquid.ui-liquid .paste-progress {
+    isolation: isolate;
+    border-radius: 16px !important;   /* 液态只能圆角（压过方角模式的 0 圆角） */
+    background: rgba(26, 30, 38, .58) !important;
+    border: 1px solid rgba(255, 255, 255, .16) !important;
+    box-shadow: inset 0 0 16px -4px rgba(255, 255, 255, .2), 0 12px 40px rgba(0, 0, 0, .42) !important;
+    color: #e8eef7 !important;
+}
+/* 面板磨砂层：CSS 原生 blur 保证铺满整个面板（同卡片，弃用 SVG 滤镜） */
+body.ui-liquid.ui-liquid .warn-panel::after,
+body.ui-liquid.ui-liquid .toast::after,
+body.ui-liquid.ui-liquid .paste-progress::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: blur(12px) saturate(1.5);
+    -webkit-backdrop-filter: blur(12px) saturate(1.5);
+}
+body.ui-liquid.ui-liquid .warn-panel::before,
+body.ui-liquid.ui-liquid .toast::before,
+body.ui-liquid.ui-liquid .paste-progress::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .02) 45%, rgba(255, 255, 255, .07));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22),
+                inset 0 0 14px -4px rgba(255, 255, 255, .22);
+}
+
+/* ============================================================
+   可滚动容器（弹窗/菜单）：仅半透明玻璃底
+   （伪元素会随内容滚动，故不加折射层）
+   ============================================================ */
+body.ui-liquid.ui-liquid .modal,
+body.ui-liquid.ui-liquid .tools-menu,
+body.ui-liquid.ui-liquid .zip-menu {
+    border-radius: 16px !important;   /* 液态只能圆角 */
+    background: rgba(24, 28, 36, .62) !important;
+    border: 1px solid rgba(255, 255, 255, .16) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, .45) !important;
+    color: #e8eef7 !important;
+    /* 直接滤镜（非伪元素）：滚动时不产生位移伪影 */
+    backdrop-filter: blur(10px) saturate(1.4);
+    -webkit-backdrop-filter: blur(10px) saturate(1.4);
+}
+/* 仓库导入全屏遮罩：液态下也透出背景照片 */
+body.ui-liquid.ui-liquid .repo-overlay { background: rgba(14, 17, 22, .82) !important; }

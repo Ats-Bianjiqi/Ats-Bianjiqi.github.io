@@ -1,0 +1,311 @@
+/* ============================================================
+   液态玻璃模式（Liquid Glass · iOS 26 风格）
+   算法来源：liquid-glass 中文版（archisvaze/liquid-glass，MIT）
+   仅在 body.ui-liquid 时生效；默认「原样」零变化。
+
+   原理（与演示一致）：
+     ::after  = SVG feDisplacementMap 物理折射 + 高光贴图，
+                经 backdrop-filter 作用于元素背后的画面（z-index:-1）
+     ::before = 着色 / 内阴影 / 顶部高光（z-index:1，pointer-events:none）
+   仅 Chromium 内核有完整折射效果；其他内核自动降级为
+   普通毛玻璃（blur + saturate），外观仍然协调。
+   ============================================================ */
+
+/* ---------- 背景图层：玻璃折射的素材 ---------- */
+.liquid-bg { display: none; }
+body.ui-liquid.ui-liquid .liquid-bg {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: url('../bg/liquid.jpg') center center / cover no-repeat #101318;
+}
+/* 液态 + 浅色主题：照片罩白纱，既有深色文字保持可读 */
+body.ui-liquid.ui-liquid.light-theme .liquid-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, .62);
+}
+
+/* ---------- 主体结构：半透明化，让背景隐约透出 ---------- */
+body.ui-liquid.ui-liquid { background: #101318 !important; }
+body.ui-liquid.ui-liquid .toolbar,
+body.ui-liquid.ui-liquid .main { position: relative; z-index: 1; }
+body.ui-liquid.ui-liquid .toolbar { background: rgba(24, 28, 36, .86) !important; }
+body.ui-liquid.ui-liquid .sidebar { background: rgba(22, 26, 33, .88) !important; }
+body.ui-liquid.ui-liquid .editor-area { background: rgba(16, 19, 25, .9) !important; }
+body.ui-liquid.ui-liquid .project-list-view { background: rgba(14, 17, 23, .4) !important; }
+
+/* ============================================================
+   按钮：通用液态玻璃
+   （!important 用于压过样式版本/主题的既有实底配色）
+   ============================================================ */
+body.ui-liquid.ui-liquid button {
+    position: relative;
+    isolation: isolate;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, .07) !important;
+    border: 1px solid rgba(255, 255, 255, .18) !important;
+    color: #eef2f9 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .28) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+}
+/* 折射玻璃层（元素背后的画面） */
+body.ui-liquid.ui-liquid button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: blur(7px) saturate(1.5);
+    -webkit-backdrop-filter: blur(7px) saturate(1.5);
+    backdrop-filter: url(#lg-filter-btn);
+    -webkit-backdrop-filter: url(#lg-filter-btn);
+}
+/* 着色 / 内阴影 / 顶部高光 */
+body.ui-liquid.ui-liquid button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .02) 45%, rgba(255, 255, 255, .09));
+    box-shadow: inset 0 0 10px -3px rgba(255, 255, 255, .32);
+}
+body.ui-liquid.ui-liquid button:hover::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .05) 45%, rgba(255, 255, 255, .14));
+}
+body.ui-liquid.ui-liquid button:active::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .07) 45%, rgba(255, 255, 255, .18));
+}
+/* 语言面板的 ✓ 角标让位给玻璃层；用着色保留选中态 */
+body.ui-liquid.ui-liquid .fl-opt.picked::after { content: ''; }
+body.ui-liquid.ui-liquid .fl-opt.picked {
+    background: rgba(56, 189, 248, .18) !important;
+    border-color: rgba(56, 189, 248, .6) !important;
+    color: #7dd3fc !important;
+}
+body.ui-liquid.ui-liquid.light-theme .fl-opt.picked {
+    background: rgba(13, 156, 138, .16) !important;
+    border-color: rgba(13, 156, 138, .55) !important;
+    color: #0d8f80 !important;
+}
+
+/* ---------- 语义按钮：保留色相，改半透明玻璃 ---------- */
+body.ui-liquid.ui-liquid .toolbar .btn-run { background: rgba(78, 201, 176, .16) !important; border-color: rgba(78, 201, 176, .45) !important; color: #9ff0e2 !important; }
+body.ui-liquid.ui-liquid .toolbar .btn-stop { background: rgba(244, 67, 54, .18) !important; border-color: rgba(244, 67, 54, .5) !important; color: #ffb3ad !important; }
+body.ui-liquid.ui-liquid .toolbar .btn-pack { background: rgba(150, 110, 220, .18) !important; border-color: rgba(150, 110, 220, .45) !important; color: #cdb6f7 !important; }
+body.ui-liquid.ui-liquid .toolbar .btn-icon { background: rgba(245, 166, 35, .16) !important; border-color: rgba(245, 166, 35, .45) !important; color: #ffd58a !important; }
+body.ui-liquid.ui-liquid .fab { background: rgba(14, 99, 156, .3) !important; border-color: rgba(125, 211, 252, .4) !important; color: #dff1ff !important; }
+body.ui-liquid.ui-liquid .warn-btn { background: rgba(61, 179, 156, .22) !important; border-color: rgba(255, 255, 255, .3) !important; }
+body.ui-liquid.ui-liquid .warn-btn.has-errors { background: rgba(244, 67, 54, .24) !important; border-color: rgba(255, 180, 180, .45) !important; }
+body.ui-liquid.ui-liquid .theme-btn { background: rgba(255, 255, 255, .08) !important; }
+body.ui-liquid.ui-liquid .settings-opt.active { background: rgba(45, 212, 191, .14) !important; border-color: rgba(45, 212, 191, .55) !important; color: #7ff0e4 !important; }
+body.ui-liquid.ui-liquid .tools-menu-item { background: rgba(14, 99, 156, .34) !important; border-color: rgba(125, 211, 252, .28) !important; }
+body.ui-liquid.ui-liquid .zip-menu-item { background: rgba(14, 99, 156, .34) !important; border-color: rgba(125, 211, 252, .28) !important; }
+
+/* ---------- 圆形按钮：保持全圆角 ---------- */
+body.ui-liquid.ui-liquid .theme-btn,
+body.ui-liquid.ui-liquid .fab,
+body.ui-liquid.ui-liquid .warn-btn,
+body.ui-liquid.ui-liquid .repo-add-btn,
+body.ui-liquid.ui-liquid .repo-close,
+body.ui-liquid.ui-liquid .model-viewer-close,
+body.ui-liquid.ui-liquid .preview-area-header .close-preview,
+body.ui-liquid.ui-liquid .btn-refresh-round,
+body.ui-liquid.ui-liquid .proj-btn,
+body.ui-liquid.ui-liquid .file-item .actions button,
+body.ui-liquid.ui-liquid .src-toggle-list { border-radius: 999px !important; }
+/* 浮动按钮保持 fixed 定位（theme/warn/fab 为浮动词头，不随文档流） */
+body.ui-liquid.ui-liquid .theme-btn,
+body.ui-liquid.ui-liquid .warn-btn,
+body.ui-liquid.ui-liquid .fab { position: fixed !important; }
+
+/* ============================================================
+   浮动面板（不滚动）：完整玻璃
+   ============================================================ */
+body.ui-liquid.ui-liquid .warn-panel,
+body.ui-liquid.ui-liquid .toast,
+body.ui-liquid.ui-liquid .paste-progress {
+    isolation: isolate;
+    background: rgba(26, 30, 38, .58) !important;
+    border: 1px solid rgba(255, 255, 255, .16) !important;
+    box-shadow: inset 0 0 16px -4px rgba(255, 255, 255, .2), 0 12px 40px rgba(0, 0, 0, .42) !important;
+    color: #e8eef7 !important;
+}
+body.ui-liquid.ui-liquid .warn-panel::after,
+body.ui-liquid.ui-liquid .toast::after,
+body.ui-liquid.ui-liquid .paste-progress::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: blur(9px) saturate(1.5);
+    -webkit-backdrop-filter: blur(9px) saturate(1.5);
+    backdrop-filter: url(#lg-filter-panel);
+    -webkit-backdrop-filter: url(#lg-filter-panel);
+}
+body.ui-liquid.ui-liquid .warn-panel::before,
+body.ui-liquid.ui-liquid .toast::before,
+body.ui-liquid.ui-liquid .paste-progress::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .02) 45%, rgba(255, 255, 255, .07));
+    box-shadow: inset 0 0 14px -4px rgba(255, 255, 255, .22);
+}
+
+/* ============================================================
+   可滚动容器（弹窗/菜单）：仅半透明玻璃底
+   （伪元素会随内容滚动，故不加折射层）
+   ============================================================ */
+body.ui-liquid.ui-liquid .modal,
+body.ui-liquid.ui-liquid .tools-menu,
+body.ui-liquid.ui-liquid .zip-menu {
+    background: rgba(24, 28, 36, .62) !important;
+    border: 1px solid rgba(255, 255, 255, .16) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, .45) !important;
+    color: #e8eef7 !important;
+    /* 直接滤镜（非伪元素）：滚动时不产生位移伪影 */
+    backdrop-filter: blur(10px) saturate(1.4);
+    -webkit-backdrop-filter: blur(10px) saturate(1.4);
+}
+/* 仓库导入全屏遮罩：液态下也透出背景照片 */
+body.ui-liquid.ui-liquid .repo-overlay { background: rgba(14, 17, 22, .82) !important; }
+
+/* ============================================================
+   项目卡片 / 文件标签：完整玻璃（大号折射）
+   ============================================================ */
+body.ui-liquid.ui-liquid .project-card {
+    background: rgba(255, 255, 255, .05) !important;
+    border: 1px solid rgba(255, 255, 255, .16) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .3) !important;
+    color: #dbe4f0 !important;
+}
+body.ui-liquid.ui-liquid .project-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: blur(9px) saturate(1.5);
+    -webkit-backdrop-filter: blur(9px) saturate(1.5);
+    backdrop-filter: url(#lg-filter-card);
+    -webkit-backdrop-filter: url(#lg-filter-card);
+}
+body.ui-liquid.ui-liquid .project-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .02) 45%, rgba(255, 255, 255, .08));
+    box-shadow: inset 0 0 14px -4px rgba(255, 255, 255, .24);
+}
+body.ui-liquid.ui-liquid .project-card:hover::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .04) 45%, rgba(255, 255, 255, .13));
+}
+body.ui-liquid.ui-liquid .file-tab {
+    position: relative;
+    isolation: isolate;
+    background: rgba(255, 255, 255, .06) !important;
+    border: 1px solid rgba(255, 255, 255, .14) !important;
+    color: #dbe4f0 !important;
+}
+body.ui-liquid.ui-liquid .file-tab.active {
+    background: rgba(14, 99, 156, .42) !important;
+    border-color: rgba(125, 211, 252, .4) !important;
+    color: #fff !important;
+}
+body.ui-liquid.ui-liquid .file-tab::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: blur(7px) saturate(1.5);
+    -webkit-backdrop-filter: blur(7px) saturate(1.5);
+    backdrop-filter: url(#lg-filter-btn);
+    -webkit-backdrop-filter: url(#lg-filter-btn);
+}
+body.ui-liquid.ui-liquid .file-tab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .02) 45%, rgba(255, 255, 255, .08));
+}
+
+/* ============================================================
+   液态 + 浅色主题：乳白玻璃 + 深色文字
+   ============================================================ */
+/* 主体结构：深色半透明 → 乳白半透明（否则浅色主题下文字不可读） */
+body.ui-liquid.ui-liquid.light-theme { background: #e9eef5 !important; }
+body.ui-liquid.ui-liquid.light-theme .toolbar { background: rgba(255, 255, 255, .78) !important; }
+body.ui-liquid.ui-liquid.light-theme .sidebar { background: rgba(255, 255, 255, .82) !important; }
+body.ui-liquid.ui-liquid.light-theme .editor-area { background: rgba(255, 255, 255, .9) !important; }
+body.ui-liquid.ui-liquid.light-theme .project-list-view { background: rgba(255, 255, 255, .38) !important; }
+body.ui-liquid.ui-liquid.light-theme button {
+    background: rgba(255, 255, 255, .4) !important;
+    border-color: rgba(255, 255, 255, .75) !important;
+    color: #1c2733 !important;
+    text-shadow: none !important;
+}
+body.ui-liquid.ui-liquid.light-theme button::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .06) 45%, rgba(255, 255, 255, .32));
+}
+body.ui-liquid.ui-liquid.light-theme button:hover::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, .12) 45%, rgba(255, 255, 255, .42));
+}
+body.ui-liquid.ui-liquid.light-theme .modal,
+body.ui-liquid.ui-liquid.light-theme .tools-menu,
+body.ui-liquid.ui-liquid.light-theme .zip-menu,
+body.ui-liquid.ui-liquid.light-theme .warn-panel,
+body.ui-liquid.ui-liquid.light-theme .toast,
+body.ui-liquid.ui-liquid.light-theme .paste-progress {
+    background: rgba(255, 255, 255, .52) !important;
+    border-color: rgba(255, 255, 255, .85) !important;
+    color: #22303f !important;
+}
+body.ui-liquid.ui-liquid.light-theme .project-card {
+    background: rgba(255, 255, 255, .42) !important;
+    border-color: rgba(255, 255, 255, .8) !important;
+    color: #22303f !important;
+}
+body.ui-liquid.ui-liquid.light-theme .file-tab {
+    background: rgba(255, 255, 255, .38) !important;
+    color: #22303f !important;
+}
+body.ui-liquid.ui-liquid.light-theme .file-tab.active {
+    background: rgba(14, 99, 156, .3) !important;
+    color: #fff !important;
+}
+/* 浅色玻璃上的文字统一转深色 */
+body.ui-liquid.ui-liquid.light-theme .modal h3,
+body.ui-liquid.ui-liquid.light-theme .settings-label,
+body.ui-liquid.ui-liquid.light-theme .settings-tip,
+body.ui-liquid.ui-liquid.light-theme .fl-sub,
+body.ui-liquid.ui-liquid.light-theme .fl-globe,
+body.ui-liquid.ui-liquid.light-theme .warn-panel-header,
+body.ui-liquid.ui-liquid.light-theme .warn-item,
+body.ui-liquid.ui-liquid.light-theme .warn-empty,
+body.ui-liquid.ui-liquid.light-theme .toast,
+body.ui-liquid.ui-liquid.light-theme .paste-progress-text,
+body.ui-liquid.ui-liquid.light-theme .md-title,
+body.ui-liquid.ui-liquid.light-theme .fv-name,
+body.ui-liquid.ui-liquid.light-theme .fv-meta,
+body.ui-liquid.ui-liquid.light-theme .fv-sub { color: #2c3a4d !important; }
+/* 告警面板头部：基色为深色，浅色玻璃下转乳白 */
+body.ui-liquid.ui-liquid.light-theme .warn-panel-header {
+    background: rgba(255, 255, 255, .55) !important;
+    border-bottom-color: rgba(0, 0, 0, .08) !important;
+}

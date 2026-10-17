@@ -7,6 +7,177 @@ import { STLLoader }         from 'three/addons/loaders/STLLoader.js';
 import { RoomEnvironment }   from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFExporter }      from 'three/addons/exporters/GLTFExporter.js';
 
+/* ===== 工具 i18n：静态 data-t + 动态 T()，语言继承父页并实时跟随 ===== */
+var LANG = 'zh';
+try { LANG = /en/i.test(parent.document.documentElement.lang || '') ? 'en' : 'zh'; } catch (e) {}
+try { var _lk = localStorage.getItem('ats_editor_lang'); if (_lk === 'en') LANG = 'en'; else if (_lk === 'zh') LANG = 'zh'; } catch (e) {}
+var T = function (s) { if (LANG === 'en') { var d = T.d.en; if (d[s] !== undefined) return d[s]; } return s; };
+T.d = { en: {} };
+function applyToolLang() {
+  var d = T.d.en;
+  var pick = function (k) { return (LANG === 'en') ? d[k] : k; };  /* 键即中文原文 */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (el) {
+    var v = pick(el.getAttribute('data-t')); if (v !== undefined) el.textContent = v;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-t-title]'), function (el) {
+    var v = pick(el.getAttribute('data-t-title')); if (v !== undefined) el.title = v;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-t-ph]'), function (el) {
+    var v = pick(el.getAttribute('data-t-ph')); if (v !== undefined) el.placeholder = v;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-t-html]'), function (el) {
+    var v = pick(el.getAttribute('data-t-html')); if (v !== undefined) el.innerHTML = v;
+  });
+}
+window.addEventListener('message', function (e) {
+  var d = e.data;
+  if (d && d.__atsLang) {
+    LANG = d.__atsLang === 'en' ? 'en' : 'zh';
+    applyToolLang();
+    if (typeof onToolLangChange === 'function') { try { onToolLangChange(); } catch (err) {} }
+  }
+});
+
+T.d.en = {
+ "打开模型": "Open Model",
+ "添加模型": "Add Model",
+ "移动": "Move",
+ "自动旋转": "Auto Rotate",
+ "线框": "Wireframe",
+ "网格": "Grid",
+ "重置视角": "Reset View",
+ "截图": "Screenshot",
+ "选择要添加的模型": "Choose a model to add",
+ "部件编辑": "Part Editor",
+ "当前选中": "Selected",
+ "未选中 · 改色将应用于全部": "None · color applies to all",
+ "颜色（十六进制）": "Color (hex)",
+ "应用到全部": "Apply to All",
+ "删除选中部件": "Delete Selected",
+ "导出(.glb)": "Export (.glb)",
+ "存仓库": "Save to repo",
+ "把当前场景保存到文件仓库": "Save the current scene to the file repository",
+ "正在存入仓库…": "Saving to repository…",
+ "已存入仓库": "Saved to repository",
+ "存仓库失败": "Failed to save to repository",
+ "恢复": "Restore",
+ "点击模型选中部件 · 拖动": "Click model to select · drag",
+ "箭头": "arrow",
+ "移动位置": "Move",
+ "十六进制支持": "hex supported",
+ "或": "or",
+ "拖入": "Drop",
+ "移动 ·": "Move ·",
+ "旋转 ·": "Rotate ·",
+ "视角 ·": "View ·",
+ "收起 ·": "Collapse ·",
+ "删除 ·": "Delete ·",
+ "取消": "Cancel",
+ "松开鼠标以载入模型": "Release to load model",
+ "支持 .glb / .gltf / .obj / .stl（可一并拖入贴图与 .bin）": ".glb / .gltf / .obj / .stl supported (textures & .bin can be dropped together)",
+ "加载中…": "Loading…",
+ "场景": "Scene",
+ "球体": "Sphere",
+ "立方体": "Cube",
+ "圆柱": "Cylinder",
+ "圆环": "Torus",
+ "圆锥": "Cone",
+ "不支持的文件类型，请使用 .glb / .gltf / .obj / .stl": "Unsupported type, use .glb / .gltf / .obj / .stl",
+ "正在解析模型…": "Parsing model…",
+ "文件中没有可用的场景数据": "No usable scene data in file",
+ "加载失败：": "Load failed: ",
+ "已截图": "Screenshot taken",
+ "已导出": "Exported",
+ "未命名模型": "Untitled",
+ " 副本": " copy",
+ "三角体": "Triangular Prism",
+ "侧视": "Side",
+ "俯视": "Top",
+ "加载 mm.gltf 失败：": "mm.gltf load failed: ",
+ "加载超时": "Load timeout",
+ "变换模式：": "Transform: ",
+ "场景中没有可导出的模型": "No models to export",
+ "场景中没有模型": "No models in scene",
+ "复制失败，请手动选择": "Copy failed, select manually",
+ "导出失败：": "Export failed: ",
+ "展开面板": "Expand panel",
+ "已复制 ": "Copied ",
+ "已复制「": "Copied \"",
+ "已应用到全部部件": "Applied to all parts",
+ "已恢复原模型": "Original restored",
+ "已添加「": "Added \"",
+ "已载入 mm.gltf": "mm.gltf loaded",
+ "平面": "Plane",
+ "当前没有可改色的部件": "No parts to recolor",
+ "当前没有可调节的部件": "No parts to adjust",
+ "截图已保存": "Screenshot saved",
+ "收起面板": "Collapse panel",
+ "旋转": "Rotate",
+ "未命名部件": "Untitled part",
+ "未找到 mm.gltf，已载入内置模型": "mm.gltf not found; built-in model loaded",
+ "模型不含可见几何体": "No visible geometry in model",
+ "模型已导出为 .glb": "Exported as .glb",
+ "正在加载 mm.gltf…": "Loading mm.gltf…",
+ "正在导出模型…": "Exporting model…",
+ "正方体": "Box",
+ "正视": "Front",
+ "点击模型选中 · 拖动箭头可移动位置": "Click to select · drag arrows to move",
+ "缩放": "Scale",
+ "胶囊": "Capsule",
+ "视角": "View",
+ "请先选中一个部件": "Select a part first",
+ "部件": "Part",
+ "部件 ": "Part ",
+ "颜色格式无效，请输入如 #3a7bff": "Invalid color, e.g. #3a7bff",
+ "默认模型组合": "Default model set",
+ "正": "F",
+ "后": "B",
+ "左": "L",
+ "右": "R",
+ "顶": "T",
+ "底": "Und",
+ "点击模型选中部件 · 拖动<b data-t=\"箭头\">箭头</b>移动位置<br>十六进制支持 <b>#RRGGBB</b> 或 <b>#RGB</b><br>金属度 / 粗糙度对选中部件生效，未选中时应用于全部": "Click the model to select a part · drag the <b data-t=\"箭头\">arrow</b> to move it<br>Hex color supported: <b>#RRGGBB</b> or <b>#RGB</b><br>Metalness / roughness apply to the selected part, or to all when none selected",
+ "前视图": "Front view",
+ "后视图": "Back view",
+ "左视图": "Left view",
+ "右视图": "Right view",
+ "顶视图": "Top view",
+ "底视图": "Bottom view",
+ "打开本地模型文件": "Open a local model file",
+ "添加默认模型": "Add a default model",
+ "移动模式 (M)": "Move mode (M)",
+ "自动旋转 (R)": "Auto rotate (R)",
+ "线框模式 (W)": "Wireframe mode (W)",
+ "显示网格 (G)": "Show grid (G)",
+ "重置视角 (F)": "Reset view (F)",
+ "保存截图": "Save screenshot",
+ "变换模式：移动 / 旋转 / 缩放 (T)": "Transform: move / rotate / scale (T)",
+ "关闭": "Close",
+ "收起面板": "Collapse panel",
+ "拾取颜色": "Pick a color",
+ "输入十六进制颜色，回车应用": "Type a hex color, press Enter to apply",
+ "复制颜色编号": "Copy color code",
+ "把当前颜色应用到所有部件": "Apply current color to all parts",
+ "复制选中的部件（含独立材质）": "Duplicate selected part (with its own material)",
+ "正视视角": "Front view",
+ "侧视视角": "Side view",
+ "俯视视角": "Top view",
+ "把当前场景导出为 GLB 模型文件": "Export the current scene as a .glb model file",
+ "撤销所有删除与改色": "Undo all deletions & color changes",
+ "复制部件": "Duplicate Part",
+ "材质 · 金属度": "Material · Metalness",
+ "材质 · 粗糙度": "Material · Roughness",
+ "已载入 ": "Loaded ",
+ "已删除「": "Deleted \"",
+ " 个模型": " model(s)",
+ "网格 ": "Meshes ",
+ " · 材质 ": " · Materials ",
+ "顶点 ": "Vertices ",
+ " · 三角面 ": " · Tris "
+};
+applyToolLang();
+
+
 const container = document.getElementById('app');
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -110,7 +281,7 @@ function rebuildGrid(size) {
 const modelsGroup = new THREE.Group();
 scene.add(modelsGroup);
 
-let currentTitle = '场景';
+let currentTitle = T('场景');
 let wireframeOn  = false;
 let autoRotateOn = false;
 let moveOn       = true;
@@ -130,14 +301,14 @@ transformControls.addEventListener('dragging-changed', (e) => { controls.enabled
 function setMoveMode(on) { moveOn = on; btnMove.classList.toggle('active', on); transformControls.enabled = on; tcObject.visible = on; updateTransformAttachment(); }
 
 const PRIMITIVES = [
-  { id: 'sphere', name: '球体', color: 0x8fb2ff, svg: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/>', make: () => new THREE.SphereGeometry(0.8, 48, 32) },
-  { id: 'box', name: '正方体', color: 0xffb765, svg: '<path d="M12 2.6 21 7.3v9.4L12 21.4 3 16.7V7.3z"/><path d="M3 7.3 12 12l9-4.7M12 12v9.4"/>', make: () => new THREE.BoxGeometry(1.3, 1.3, 1.3, 2, 2, 2) },
-  { id: 'pyramid', name: '三角体', color: 0x9be08a, svg: '<path d="M12 3 21 19.5H3z"/><path d="M12 3v16.5"/><path d="M12 19.5 7.2 12M12 19.5l4.8-7.5"/>', make: () => new THREE.ConeGeometry(0.95, 1.6, 3, 1) },
-  { id: 'cylinder', name: '圆柱', color: 0x7ad3e8, svg: '<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12a7 3 0 0 0 14 0V6"/>', make: () => new THREE.CylinderGeometry(0.62, 0.62, 1.55, 48) },
-  { id: 'cone', name: '圆锥', color: 0xff9db0, svg: '<path d="M12 3 5 18M12 3l7 15"/><ellipse cx="12" cy="18" rx="7" ry="3"/>', make: () => new THREE.ConeGeometry(0.8, 1.55, 48) },
-  { id: 'torus', name: '圆环', color: 0xc7a4ff, svg: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/>', make: () => new THREE.TorusGeometry(0.68, 0.25, 24, 64) },
-  { id: 'capsule', name: '胶囊', color: 0xffd88a, svg: '<rect x="7" y="3" width="10" height="18" rx="5"/>', make: () => new THREE.CapsuleGeometry(0.45, 0.85, 12, 32) },
-  { id: 'plane', name: '平面', color: 0xa8b8d0, svg: '<path d="M3 16.5 9 6h12l-6 10.5z"/>', make: () => new THREE.PlaneGeometry(1.6, 1.6), rot: [-Math.PI / 2, 0, 0] }
+  { id: 'sphere', name: T('球体'), color: 0x8fb2ff, svg: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/>', make: () => new THREE.SphereGeometry(0.8, 48, 32) },
+  { id: 'box', name: T('正方体'), color: 0xffb765, svg: '<path d="M12 2.6 21 7.3v9.4L12 21.4 3 16.7V7.3z"/><path d="M3 7.3 12 12l9-4.7M12 12v9.4"/>', make: () => new THREE.BoxGeometry(1.3, 1.3, 1.3, 2, 2, 2) },
+  { id: 'pyramid', name: T('三角体'), color: 0x9be08a, svg: '<path d="M12 3 21 19.5H3z"/><path d="M12 3v16.5"/><path d="M12 19.5 7.2 12M12 19.5l4.8-7.5"/>', make: () => new THREE.ConeGeometry(0.95, 1.6, 3, 1) },
+  { id: 'cylinder', name: T('圆柱'), color: 0x7ad3e8, svg: '<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12a7 3 0 0 0 14 0V6"/>', make: () => new THREE.CylinderGeometry(0.62, 0.62, 1.55, 48) },
+  { id: 'cone', name: T('圆锥'), color: 0xff9db0, svg: '<path d="M12 3 5 18M12 3l7 15"/><ellipse cx="12" cy="18" rx="7" ry="3"/>', make: () => new THREE.ConeGeometry(0.8, 1.55, 48) },
+  { id: 'torus', name: T('圆环'), color: 0xc7a4ff, svg: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/>', make: () => new THREE.TorusGeometry(0.68, 0.25, 24, 64) },
+  { id: 'capsule', name: T('胶囊'), color: 0xffd88a, svg: '<rect x="7" y="3" width="10" height="18" rx="5"/>', make: () => new THREE.CapsuleGeometry(0.45, 0.85, 12, 32) },
+  { id: 'plane', name: T('平面'), color: 0xa8b8d0, svg: '<path d="M3 16.5 9 6h12l-6 10.5z"/>', make: () => new THREE.PlaneGeometry(1.6, 1.6), rot: [-Math.PI / 2, 0, 0] }
 ];
 
 let addIndex = 0;
@@ -160,7 +331,7 @@ function addPrimitive(def, opts = {}) {
     mesh.position.z += Math.sin(a) * r;
   }
   modelsGroup.add(mesh);
-  if (!opts.silent) { selectMesh(mesh); updateInfo(); toast('已添加「' + def.name + '」'); }
+  if (!opts.silent) { selectMesh(mesh); updateInfo(); toast(T('已添加「') + def.name + T('」')); }
   return mesh;
 }
 
@@ -207,8 +378,8 @@ async function loadFiles(fileList) {
   const files = Array.from(fileList || []).filter(f => f.size > 0);
   if (!files.length) return;
   const main = files.find(f => /\.(glb|gltf|obj|stl)$/i.test(f.name));
-  if (!main) { toast('不支持的文件类型，请使用 .glb / .gltf / .obj / .stl', true); return; }
-  setLoading(true, '正在解析模型…');
+  if (!main) { toast(T('不支持的文件类型，请使用 .glb / .gltf / .obj / .stl'), true); return; }
+  setLoading(true, T('正在解析模型…'));
   revokeURLs();
   fileMap.clear();
   try {
@@ -225,12 +396,12 @@ async function loadFiles(fileList) {
     if (ext === 'glb' || ext === 'gltf') object = await loadGLTF(url);
     else if (ext === 'obj') object = await loadOBJ(url);
     else object = await loadSTL(url);
-    if (!object) throw new Error('文件中没有可用的场景数据');
+    if (!object) throw new Error(T('文件中没有可用的场景数据'));
     importModel(object, main.name);
-    toast(`已载入 ${main.name}`);
+    toast(T('已载入 ') + main.name);
   } catch (err) {
     console.error(err);
-    toast('加载失败：' + (err?.message || err), true);
+    toast(T('加载失败：') + (err?.message || err), true);
   } finally { setLoading(false); }
 }
 
@@ -240,6 +411,7 @@ function clearScene() {
   while (modelsGroup.children.length) { const c = modelsGroup.children[0]; modelsGroup.remove(c); disposeObject(c); }
   deletedParts.length = 0;
   originalColors.clear();
+  originalMatParams.clear();
   addIndex = 0;
 }
 
@@ -249,7 +421,7 @@ function importModel(object, title) {
   object.traverse(o => {
     if (o.isMesh) {
       partIndex++;
-      if (!o.name) o.name = '部件 ' + partIndex;
+      if (!o.name) o.name = T('部件 ') + partIndex;
       if (Array.isArray(o.material)) o.material = o.material.map(m => (m ? m.clone() : m));
       else if (o.material) o.material = o.material.clone();
       o.castShadow = true;
@@ -262,7 +434,7 @@ function importModel(object, title) {
   modelsGroup.add(wrapper);
   object.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(object);
-  if (box.isEmpty()) throw new Error('模型不含可见几何体');
+  if (box.isEmpty()) throw new Error(T('模型不含可见几何体'));
   const center = box.getCenter(new THREE.Vector3());
   const size   = box.getSize(new THREE.Vector3());
   const maxDim = Math.max(size.x, size.y, size.z) || 1;
@@ -312,6 +484,36 @@ function frameObject() {
   fillLight.position.set(-d * 0.6, d * 0.4, d * 1.2);
 }
 
+/* ===== 六视图快捷切换：正/后/左/右/顶/底 ===== */
+const VIEW_DIRS = {
+  front:  [0, 0.12, 1],   back:  [0, 0.12, -1],
+  left:   [-1, 0.12, 0],  right: [1, 0.12, 0],
+  top:    [0.001, 1, 0.001], bottom: [0.001, -1, 0.001]
+};
+function setStdView(name) {
+  if (!modelsGroup.children.length) { toast(T('场景中没有模型')); return; }
+  const dir = VIEW_DIRS[name]; if (!dir) return;
+  const box = new THREE.Box3().setFromObject(modelsGroup);
+  if (box.isEmpty()) return;
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const radius = Math.max(size.x, size.y, size.z) * 0.5 * 1.15;
+  const vFov = THREE.MathUtils.degToRad(camera.fov);
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+  const dist = radius / Math.sin(Math.min(vFov, hFov) / 2) * 1.08;
+  const target = new THREE.Vector3(center.x, center.y, center.z);
+  controls.target.copy(target);
+  const d = new THREE.Vector3(dir[0], dir[1], dir[2]).normalize();
+  camera.position.copy(d.multiplyScalar(dist).add(target));
+  camera.near = Math.max(dist / 600, 0.005);
+  camera.far = dist * 12;
+  camera.updateProjectionMatrix();
+  controls.update();
+}
+document.querySelectorAll('#viewBox .vbtn').forEach(function (b) {
+  b.addEventListener('click', function () { setStdView(b.getAttribute('data-view')); });
+});
+
 function getMats(obj) { if (!obj || !obj.material) return []; return Array.isArray(obj.material) ? obj.material : [obj.material]; }
 function collectMeshes() { const arr = []; modelsGroup.traverse(o => { if (o.isMesh) arr.push(o); }); return arr; }
 function getTopLevel(obj) { let o = obj; while (o && o.parent && o.parent !== modelsGroup) o = o.parent; return o; }
@@ -340,9 +542,9 @@ function updateInfo() {
     getMats(o).forEach(m => m && materials.add(m.uuid));
   });
   const count = modelsGroup.children.length;
-  const title = count > 1 ? `场景 · ${count} 个模型` : (currentTitle || '场景');
+  const title = count > 1 ? T('场景') + ' · ' + count + T(' 个模型') : (currentTitle || T('场景'));
   infoName.textContent = title;
-  infoStats.innerHTML = `网格 <b>${meshes}</b> · 材质 <b>${materials.size}</b><br>顶点 <b>${fmt(Math.round(verts))}</b> · 三角面 <b>${fmt(Math.round(tris))}</b>`;
+  infoStats.innerHTML = T('网格 ') + '<b>' + meshes + '</b>' + T(' · 材质 ') + '<b>' + materials.size + '</b><br>' + T('顶点 ') + '<b>' + fmt(Math.round(verts)) + '</b>' + T(' · 三角面 ') + '<b>' + fmt(Math.round(tris)) + '</b>';
 }
 
 function highlightMesh(mesh) {
@@ -388,7 +590,7 @@ function applyColor(hex, all = false) {
   const c = normalizeHex(hex);
   if (!c) return false;
   const targets = (all || !selectedMesh) ? collectMeshes() : [selectedMesh];
-  if (!targets.length) { toast('当前没有可改色的部件', true); return false; }
+  if (!targets.length) { toast(T('当前没有可改色的部件'), true); return false; }
   targets.forEach(mesh => applyColorToMesh(mesh, c));
   colorPicker.value = c; hexInput.value = c; hexInput.classList.remove('invalid');
   if (selectedMesh) syncColorUIFromSelection();
@@ -408,7 +610,7 @@ function deleteSelected() {
   clearSelection();
   parent.remove(mesh);
   updateInfo();
-  toast(`已删除「${mesh.name || '部件'}」`);
+  toast(T('已删除「') + (mesh.name || T('部件')) + T('」'));
 }
 function restoreModel() {
   deletedParts.forEach(({ mesh, parent, index }) => {
@@ -419,7 +621,9 @@ function restoreModel() {
   deletedParts.length = 0;
   originalColors.forEach((snap, mesh) => { snap.forEach(({ mat, color }) => { if (mat && mat.color) mat.color.copy(color); }); });
   originalColors.clear();
-  clearSelection(); updateInfo(); toast('已恢复原模型');
+  originalMatParams.forEach((snap, mesh) => { snap.forEach(({ mat, metalness, roughness }) => { if (mat) { mat.metalness = metalness; mat.roughness = roughness; } }); });
+  originalMatParams.clear();
+  clearSelection(); updateInfo(); toast(T('已恢复原模型'));
 }
 
 const raycaster = new THREE.Raycaster();
@@ -473,18 +677,141 @@ const btnCopyHex    = document.getElementById('btnCopyHex');
 const btnApplyAll   = document.getElementById('btnApplyAll');
 const btnDelete     = document.getElementById('btnDelete');
 const btnExportModel = document.getElementById('btnExportModel');
+const btnSaveModelRepo = document.getElementById('btnSaveModelRepo');
 const btnRestore    = document.getElementById('btnRestore');
+const btnMode = document.getElementById('btnMode');
+const btnModeLabel = document.getElementById('btnModeLabel');
+const matMetal = document.getElementById('matMetal');
+const matMetalV = document.getElementById('matMetalV');
+const matRough = document.getElementById('matRough');
+const matRoughV = document.getElementById('matRoughV');
+const btnDuplicate = document.getElementById('btnDuplicate');
+const btnViewFront = document.getElementById('btnViewFront');
+const btnViewSide  = document.getElementById('btnViewSide');
+const btnViewTop   = document.getElementById('btnViewTop');
+
+/* ===== 新增：变换模式（移动 / 旋转 / 缩放）===== */
+const TRANSFORM_MODES = [
+  { id: 'translate', label: T('移动') },
+  { id: 'rotate',    label: T('旋转') },
+  { id: 'scale',     label: T('缩放') }
+];
+let transformModeIdx = 0;
+function setTransformMode(i, silent) {
+  transformModeIdx = ((i % TRANSFORM_MODES.length) + TRANSFORM_MODES.length) % TRANSFORM_MODES.length;
+  const m = TRANSFORM_MODES[transformModeIdx];
+  transformControls.setMode(m.id);
+  if (btnModeLabel) btnModeLabel.textContent = m.label;
+  if (!moveOn) setMoveMode(true);   /* 切换变换模式时自动开启变换控制 */
+  if (!silent) toast(T('变换模式：') + m.label);
+}
+if (btnMode) btnMode.addEventListener('click', () => setTransformMode(transformModeIdx + 1));
+
+/* ===== 新增：复制选中部件（材质独立，便于分别改色）===== */
+function cloneMeshIndependent(mesh) {
+  const c = mesh.clone(true);
+  c.traverse(o => {
+    if (o.isMesh) {
+      if (Array.isArray(o.material)) o.material = o.material.map(m => (m ? m.clone() : m));
+      else if (o.material) o.material = o.material.clone();
+    }
+  });
+  return c;
+}
+function duplicateSelected() {
+  if (!selectedMesh) { toast(T('请先选中一个部件'), true); return; }
+  const src = selectedMesh;
+  const parent = src.parent;
+  if (!parent) return;
+  const clone = cloneMeshIndependent(src);
+  clone.name = (src.name || T('部件')) + T(' 副本');
+  clone.position.x += 0.6;   /* 错开位置，避免完全重叠 */
+  clone.position.z += 0.6;
+  parent.add(clone);
+  selectMesh(clone);
+  updateInfo();
+  toast(T('已复制「') + (src.name || T('部件')) + '」');
+}
+if (btnDuplicate) btnDuplicate.addEventListener('click', duplicateSelected);
+
+/* ===== 新增：材质金属度 / 粗糙度（选中部件生效，未选中应用全部）===== */
+const originalMatParams = new Map();
+function rememberMatParams(mesh) {
+  if (originalMatParams.has(mesh)) return;
+  const snap = [];
+  getMats(mesh).forEach(m => { if (m && 'metalness' in m) snap.push({ mat: m, metalness: m.metalness, roughness: m.roughness }); });
+  originalMatParams.set(mesh, snap);
+}
+function matParamsOf(mesh) {
+  const mats = getMats(mesh).filter(m => m && 'metalness' in m);
+  if (!mats.length) return null;
+  return { metalness: mats[0].metalness, roughness: mats[0].roughness };
+}
+function applyMatParam(key, val) {
+  const targets = selectedMesh ? [selectedMesh] : collectMeshes();
+  if (!targets.length) { toast(T('当前没有可调节的部件'), true); return; }
+  targets.forEach(mesh => {
+    rememberMatParams(mesh);
+    getMats(mesh).forEach(m => { if (m && key in m) m[key] = val; });
+  });
+}
+function syncMatUIFromSelection() {
+  const p = selectedMesh ? matParamsOf(selectedMesh) : null;
+  if (!p || !matMetal || !matRough) return;
+  matMetal.value = Math.round(p.metalness * 100);
+  matRough.value = Math.round(p.roughness * 100);
+  if (matMetalV) matMetalV.textContent = matMetal.value + '%';
+  if (matRoughV) matRoughV.textContent = matRough.value + '%';
+}
+if (matMetal) matMetal.addEventListener('input', function () {
+  const v = +this.value / 100;
+  if (matMetalV) matMetalV.textContent = this.value + '%';
+  applyMatParam('metalness', v);
+});
+if (matRough) matRough.addEventListener('input', function () {
+  const v = +this.value / 100;
+  if (matRoughV) matRoughV.textContent = this.value + '%';
+  applyMatParam('roughness', v);
+});
+
+/* ===== 新增：视角预设（正视 / 侧视 / 俯视）===== */
+function viewPreset(kind) {
+  if (!modelsGroup.children.length) { toast(T('场景中没有模型'), true); return; }
+  const box = new THREE.Box3().setFromObject(modelsGroup);
+  if (box.isEmpty()) return;
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const radius = Math.max(size.x, size.y, size.z) * 0.5 * 1.15;
+  const vFov = THREE.MathUtils.degToRad(camera.fov);
+  const dist = radius / Math.sin(vFov / 2) * 1.08;
+  const dirs = {
+    front: new THREE.Vector3(0, 0.06, 1),
+    side:  new THREE.Vector3(1, 0.06, 0),
+    top:   new THREE.Vector3(0, 1, 0.001)
+  };
+  const dir = (dirs[kind] || dirs.front).clone().normalize();
+  controls.target.copy(center);
+  camera.position.copy(dir.multiplyScalar(dist).add(center));
+  controls.update();
+  toast({ front: T('正视'), side: T('侧视'), top: T('俯视') }[kind] + T('视角'));
+}
+if (btnViewFront) btnViewFront.addEventListener('click', () => viewPreset('front'));
+if (btnViewSide)  btnViewSide.addEventListener('click',  () => viewPreset('side'));
+if (btnViewTop)   btnViewTop.addEventListener('click',   () => viewPreset('top'));
 
 function updateSelectionUI() {
   if (selectedMesh) {
-    selNameEl.textContent = selectedMesh.name || '未命名部件';
+    selNameEl.textContent = selectedMesh.name || T('未命名部件');
     selNameEl.classList.add('has');
     btnDelete.disabled = false;
+    if (btnDuplicate) btnDuplicate.disabled = false;
     syncColorUIFromSelection();
+    syncMatUIFromSelection();
   } else {
-    selNameEl.textContent = '未选中 · 改色将应用于全部';
+    selNameEl.textContent = T('未选中 · 改色将应用于全部');
     selNameEl.classList.remove('has');
     btnDelete.disabled = true;
+    if (btnDuplicate) btnDuplicate.disabled = true;
   }
 }
 
@@ -514,12 +841,12 @@ btnShot.addEventListener('click', () => {
   const a = document.createElement('a');
   a.href = data; a.download = `model-${Date.now()}.png`;
   document.body.appendChild(a); a.click(); a.remove();
-  toast('截图已保存');
+  toast(T('截图已保存'));
 });
 colorPicker.addEventListener('input', () => { const hex = colorPicker.value; hexInput.value = hex; hexInput.classList.remove('invalid'); applyColor(hex); });
 function commitHexInput() {
   const hex = normalizeHex(hexInput.value);
-  if (!hex) { hexInput.classList.add('invalid'); toast('颜色格式无效，请输入如 #3a7bff', true); return; }
+  if (!hex) { hexInput.classList.add('invalid'); toast(T('颜色格式无效，请输入如 #3a7bff'), true); return; }
   hexInput.classList.remove('invalid'); hexInput.value = hex; applyColor(hex);
 }
 hexInput.addEventListener('keydown', (e) => {
@@ -530,23 +857,23 @@ hexInput.addEventListener('blur', () => { if (normalizeHex(hexInput.value)) comm
 hexInput.addEventListener('input', () => { const ok = !!normalizeHex(hexInput.value); hexInput.classList.toggle('invalid', !ok && hexInput.value.length > 0); });
 btnCopyHex.addEventListener('click', async () => {
   const hex = normalizeHex(hexInput.value) || hexInput.value;
-  try { await navigator.clipboard.writeText(hex); toast('已复制 ' + hex); }
-  catch { hexInput.select(); try { document.execCommand('copy'); toast('已复制 ' + hex); } catch { toast('复制失败，请手动选择', true); } }
+  try { await navigator.clipboard.writeText(hex); toast(T('已复制 ') + hex); }
+  catch { hexInput.select(); try { document.execCommand('copy'); toast(T('已复制 ') + hex); } catch { toast(T('复制失败，请手动选择'), true); } }
 });
-btnApplyAll.addEventListener('click', () => { const hex = normalizeHex(hexInput.value) || colorPicker.value; if (applyColor(hex, true)) toast('已应用到全部部件'); });
+btnApplyAll.addEventListener('click', () => { const hex = normalizeHex(hexInput.value) || colorPicker.value; if (applyColor(hex, true)) toast(T('已应用到全部部件')); });
 btnDelete.addEventListener('click', deleteSelected);
 
 const gltfExporter = new GLTFExporter();
 
-function exportModel() {
+function exportSceneGLB(onBlob) {
   if (!modelsGroup.children.length) {
-    toast('场景中没有可导出的模型', true);
-    return;
+    toast(T('场景中没有可导出的模型'), true);
+    return false;
   }
   const prevSelected = selectedMesh;
   unhighlightMesh();
   transformControls.detach();
-  setLoading(true, '正在导出模型…');
+  setLoading(true, T('正在导出模型…'));
 
   const exportRoot = modelsGroup.clone(true);
   exportRoot.name = 'Scene';
@@ -555,19 +882,10 @@ function exportModel() {
     exportRoot,
     (result) => {
       try {
-        const blob = new Blob([result], { type: 'model/gltf-binary' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `model-${Date.now()}.glb`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
-        toast('模型已导出为 .glb');
+        onBlob(new Blob([result], { type: 'model/gltf-binary' }));
       } catch (e) {
         console.error(e);
-        toast('导出失败：' + (e?.message || e), true);
+        toast(T('导出失败：') + (e?.message || e), true);
       } finally {
         setLoading(false);
         if (prevSelected && prevSelected.parent) selectMesh(prevSelected);
@@ -576,19 +894,56 @@ function exportModel() {
     (error) => {
       console.error(error);
       setLoading(false);
-      toast('导出失败：' + (error?.message || error), true);
+      toast(T('导出失败：') + (error?.message || error), true);
       if (prevSelected && prevSelected.parent) selectMesh(prevSelected);
     },
     { binary: true, onlyVisible: false }
   );
+  return true;
+}
+
+function exportModel() {
+  exportSceneGLB((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `model-${Date.now()}.glb`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast(T('模型已导出为 .glb'));
+  });
+}
+
+/* 编辑后的模型（.glb）存入文件仓库：postMessage 交给父页写入 OPFS 仓库 */
+function saveModelToRepo() {
+  const sent = exportSceneGLB((blob) => {
+    const name = `model-${Date.now()}.glb`;
+    try {
+      parent.postMessage({ __repoSave: { name: name, blob: blob } }, '*');
+    } catch (e) {
+      toast(T('存仓库失败'), true);
+      return;
+    }
+    toast(T('正在存入仓库…'));
+    const h = (e) => {
+      if (!e.data || !e.data.__repoSaveAck) return;
+      window.removeEventListener('message', h);
+      toast(e.data.__repoSaveAck ? T('已存入仓库') : (T('存仓库失败') + (e.data.msg || '')), !e.data.__repoSaveAck);
+    };
+    window.addEventListener('message', h);
+  });
+  if (!sent) toast(T('场景中没有可导出的模型'), true);
 }
 
 btnExportModel.addEventListener('click', exportModel);
+btnSaveModelRepo.addEventListener('click', saveModelToRepo);
 
 function togglePanel(force) {
   const collapsed = (typeof force === 'boolean') ? force : !panelRight.classList.contains('collapsed');
   panelRight.classList.toggle('collapsed', collapsed);
-  btnFold.title = collapsed ? '展开面板' : '收起面板';
+  btnFold.title = collapsed ? T('展开面板') : T('收起面板');
   btnFold.setAttribute('aria-label', btnFold.title);
 }
 btnFold.addEventListener('click', (e) => { e.stopPropagation(); togglePanel(); });
@@ -612,6 +967,7 @@ window.addEventListener('keydown', (e) => {
   if (typing) return;
   switch (e.key.toLowerCase()) {
     case 'm': btnMove.click(); break;
+    case 't': setTransformMode(transformModeIdx + 1); break;
     case 'r': btnRotate.click(); break;
     case 'w': btnWire.click(); break;
     case 'g': btnGrid.click(); break;
@@ -642,23 +998,27 @@ function loadFallbackScene() {
     const def = PRIMITIVES.find(p => p.id === id);
     if (def) addPrimitive(def, { silent: true });
   });
-  currentTitle = '默认模型组合';
+  currentTitle = T('默认模型组合');
   clearSelection(); updateInfo(); frameObject(); setMoveMode(true);
-  toast('未找到 mm.gltf，已载入内置模型');
+  toast(T('未找到 mm.gltf，已载入内置模型'));
 }
 async function loadStartupModel() {
-  setLoading(true, '正在加载 mm.gltf…');
+  setLoading(true, T('正在加载 mm.gltf…'));
   try {
-    const object = await loadGLTF('https://ats-bianjiqi.github.io/mm.gltf');
-    if (!object) throw new Error('文件中没有可用的场景数据');
+    /* 网络慢/不可用时不能永久卡在加载态：8 秒超时后回退到内置模型 */
+    const object = await Promise.race([
+      loadGLTF('https://ats-bianjiqi.github.io/mm.gltf'),
+      new Promise((_, rej) => setTimeout(() => rej(new Error(T('加载超时'))), 8000))
+    ]);
+    if (!object) throw new Error(T('文件中没有可用的场景数据'));
     importModel(object, 'mm.gltf');
     currentTitle = 'mm.gltf';
     updateInfo(); frameObject(); setMoveMode(true);
-    toast('已载入 mm.gltf');
+    toast(T('已载入 mm.gltf'));
   } catch (err) {
-    console.warn('加载 mm.gltf 失败：', err);
+    console.warn(T('加载 mm.gltf 失败：'), err);
     loadFallbackScene();
   } finally { setLoading(false); }
 }
 loadStartupModel();
-setTimeout(() => toast('点击模型选中 · 拖动箭头可移动位置'), 1200);
+setTimeout(() => toast(T('点击模型选中 · 拖动箭头可移动位置')), 1200);

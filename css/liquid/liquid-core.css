@@ -1,0 +1,42 @@
+/* ============================================================
+   液态玻璃模式（Liquid Glass · iOS 26 风格）· 核心：背景图层与主体结构
+   算法来源：liquid-glass 中文版（archisvaze/liquid-glass，MIT）
+   仅在 body.ui-liquid 时生效；默认「原样」零变化。
+   原理：::after = CSS backdrop-filter blur 磨砂（z-index:-1，
+        全浏览器保证铺满整个元素）；::before = 着色 / 内阴影 /
+        顶部高光（z-index:1）。不依赖 SVG 滤镜，无兼容性问题。
+   ============================================================ */
+
+/* ---------- 背景图层：玻璃折射的素材 ----------
+   常驻 DOM + opacity 过渡：切换液态时照片平滑淡入/淡出。
+   opacity 由合成器动画驱动，不触发重排；关闭时为 0 即跳过绘制。
+   背景保持清晰（不做整页模糊）：清晰的照片才能衬托玻璃质感，
+   模糊只出现在各玻璃元素上。 */
+.liquid-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: url('../../bg/liquid.jpg') center center / cover no-repeat #101318;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .5s ease;
+}
+body.ui-liquid.ui-liquid .liquid-bg { opacity: 1; }
+/* 液态 + 浅色主题：照片罩白纱，既有深色文字保持可读 */
+body.ui-liquid.ui-liquid.light-theme .liquid-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, .62);
+}
+
+/* ---------- 主体结构：半透明化，让背景隐约透出 ---------- */
+body.ui-liquid.ui-liquid { background: #101318 !important; }
+body.ui-liquid.ui-liquid .main { position: relative; z-index: 1; }
+/* toolbar 层级必须高于 main（覆盖基础样式的 z-index:20 会被此处的
+   z-index:1 压平，导致 ZIP 下拉菜单被下面的文件标签行遮挡） */
+body.ui-liquid.ui-liquid .toolbar { position: relative; z-index: 2 !important; }
+body.ui-liquid.ui-liquid .toolbar { background: rgba(24, 28, 36, .86) !important; }
+body.ui-liquid.ui-liquid .sidebar { background: rgba(22, 26, 33, .88) !important; }
+body.ui-liquid.ui-liquid .editor-area { background: rgba(16, 19, 25, .9) !important; }
+body.ui-liquid.ui-liquid .project-list-view { background: rgba(14, 17, 23, .4) !important; }

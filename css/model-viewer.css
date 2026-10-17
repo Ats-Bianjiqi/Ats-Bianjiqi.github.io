@@ -45,6 +45,9 @@
   .color-row input[type=color]{width:40px;height:34px;flex:none;padding:3px;border:1px solid var(--border);border-radius:9px;background:rgba(0,0,0,.3);cursor:pointer;}
   .color-row input[type=text]{flex:1;min-width:0;height:34px;padding:0 9px;background:rgba(0,0,0,.28);border:1px solid var(--border);border-radius:9px;color:var(--text);outline:none;font:inherit;font-size:12px;font-family:'ZtFont',ui-monospace,monospace;letter-spacing:.4px;}
   .color-row input[type=text].invalid{border-color:rgba(255,110,110,.6);}
+  .mat-row{display:flex;gap:8px;align-items:center;}
+  .mat-row input[type=range]{flex:1;min-width:0;accent-color:var(--accent);cursor:pointer;}
+  .mat-val{font-size:11px;color:var(--muted);min-width:36px;text-align:right;font-family:'ZtFont',ui-monospace,monospace;}
   .icon-btn{width:34px;height:34px;flex:none;border-radius:9px;cursor:pointer;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--muted);display:flex;align-items:center;justify-content:center;}
   .icon-btn svg{width:15px;height:15px;}
   .panel-btn{width:100%;padding:9px;border-radius:9px;cursor:pointer;border:1px solid var(--border);background:rgba(255,255,255,.055);color:var(--text);font:inherit;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:7px;}
@@ -84,3 +87,12 @@
   body.light-theme{--bg:#e9eef5;--panel:rgba(255,255,255,.88);--panel-solid:rgba(255,255,255,.98);--border:rgba(30,50,90,.14);--text:#111418;--muted:#5a6b80;--accent:#2563eb;--danger:#d94848;}
   body.light-theme .panel-body::-webkit-scrollbar-thumb{background:rgba(30,60,110,.22);}
   body.light-theme .lib-pop{box-shadow:0 14px 40px rgba(60,80,120,.25);}
+
+/* ===== 六视图快捷按钮 ===== */
+.viewbox { display: flex; gap: 3px; padding: 3px; background: var(--panel, rgba(18,24,36,.76)); border: 1px solid var(--border, rgba(255,255,255,.09)); border-radius: 8px; }
+.vbtn { width: 28px; height: 26px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--muted, #8fa0ba); font: inherit; font-size: 11.5px; cursor: pointer; }
+.vbtn:hover { color: var(--text, #dfe8f6); background: rgba(122,162,255,.14); }
+.vbtn:active { transform: scale(.93); }
+body.light-theme .viewbox { background: rgba(255,255,255,.9); }
+body.light-theme .vbtn { color: #5a6b80; }
+body.light-theme .vbtn:hover { color: #111418; background: rgba(37,99,235,.10); }

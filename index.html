@@ -5,9 +5,81 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Ats编辑器</title>
 <link rel="preload" href="font/zt.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/ai-edit.css?v=20261017h">
+<script>
+/* ===== 源码覆盖 loader：localStorage['ats_src'] = {路径:内容}，重启生效 ===== */
+(function () {
+    /* 版本戳：应用源码更新后自动作废旧覆盖（备份到 ats_src_backup），防止旧代码持续生效 */
+    var SRC_VER = '2026-10-17n';   /* 版本变化会自动作废本机旧源码覆盖（备份到 ats_src_backup） */
+    var SRC = {};
+    try { SRC = JSON.parse(localStorage.getItem('ats_src') || '{}'); } catch (e) {}
+    var savedVer = '';
+    try { savedVer = localStorage.getItem('ats_src_ver') || ''; } catch (e) {}
+    if (savedVer !== SRC_VER) {
+        if (Object.keys(SRC).length) {
+            try { localStorage.setItem('ats_src_backup', localStorage.getItem('ats_src') || '{}'); } catch (e) {}
+        }
+        SRC = {};
+        try { localStorage.removeItem('ats_src'); localStorage.setItem('ats_src_ver', SRC_VER); } catch (e) {}
+    }
+    window.__ATS_SRC = SRC;
+    var idx = SRC['index.html'];
+    if (idx) {
+        var sig = String(idx.length) + '_' + idx.slice(0, 40);
+        var done = '';
+        try { done = sessionStorage.getItem('ats_src_swap'); } catch (e) {}
+        if (done !== sig) {
+            try { sessionStorage.setItem('ats_src_swap', sig); } catch (e) {}
+            document.open(); document.write(idx); document.close();
+            return;
+        }
+    }
+    /* 主样式：动态注入（缓存穿透；有覆盖时由 <style> 覆盖路径处理） */
+    if (!SRC['css/style.css']) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'css/style.css?_=' + Date.now();
+        document.head.appendChild(link);
+    }
+    /* 液态玻璃样式：主样式之后按模块注入（液态规则以双类特异性覆盖，顺序无关） */
+    ['css/liquid/liquid-core.css', 'css/liquid/liquid-buttons.css', 'css/liquid/liquid-panels.css',
+     'css/liquid/liquid-cards.css', 'css/liquid/liquid-light.css',
+     'css/liquid/liquid-square.css'].forEach(function (p) {
+        if (SRC[p]) return;
+        var lgLink = document.createElement('link');
+        lgLink.rel = 'stylesheet';
+        lgLink.href = p + '?_=' + Date.now();
+        document.head.appendChild(lgLink);
+    });
+    /* CSS 覆盖：以 <style> 追加（晚于静态 link，同特异性后者胜） */
+    Object.keys(SRC).forEach(function (p) {
+        if (/\.css$/.test(p)) {
+            var st = document.createElement('style');
+            st.setAttribute('data-src-override', p);
+            st.textContent = SRC[p];
+            document.head.appendChild(st);
+        }
+    });
+    /* app.js / ai-edit.js 覆盖：替换静态标签（动态注入，DOMContentLoaded 后执行保证 DOM 就绪） */
+    document.addEventListener('DOMContentLoaded', function () {
+        var s = document.createElement('script');
+        var ov = SRC['js/app.js'];
+        if (ov) { s.src = URL.createObjectURL(new Blob([ov], { type: 'text/javascript' })); s.setAttribute('data-src-override', 'js/app.js'); }
+        else s.src = 'js/app.js?_=' + Date.now();  /* 缓存穿透：保证文件更新后生效 */
+        document.body.appendChild(s);
+        /* AI 编辑模块（在 app.js 之后加载，依赖其全局状态） */
+        var s2 = document.createElement('script');
+        var ov2 = SRC['js/ai-edit.js'];
+        if (ov2) { s2.src = URL.createObjectURL(new Blob([ov2], { type: 'text/javascript' })); s2.setAttribute('data-src-override', 'js/ai-edit.js'); }
+        else s2.src = 'js/ai-edit.js?_=' + Date.now();
+        document.body.appendChild(s2);
+    });
+})();
+</script>
 </head>
 <body>
+
+<div class="liquid-bg" aria-hidden="true"></div>
 
 <script>document.body.classList.add('splash-active');</script>
 
@@ -32,7 +104,7 @@
     }
     var img = splash.querySelector('img');
     if (img) img.addEventListener('error', hideSplash);
-    setTimeout(hideSplash, 4000);
+    setTimeout(hideSplash, 2500);
 })();
 </script>
 
@@ -42,7 +114,7 @@
 
 
 
-<button class="theme-btn" id="themeBtn" onclick="openSettingsModal()" title="设置" data-i18n-title="settings"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M19.43,12.98c0.04,-0.32 0.07,-0.64 0.07,-0.98s-0.03,-0.66 -0.07,-0.98l2.11,-1.65c0.19,-0.15 0.24,-0.42 0.12,-0.64l-2,-3.46c-0.12,-0.22 -0.39,-0.3 -0.61,-0.22l-2.49,1c-0.52,-0.4 -1.08,-0.73 -1.69,-0.98l-0.38,-2.65C14.46,2.18 14.25,2 14,2h-4c-0.25,0 -0.46,0.18 -0.49,0.42l-0.38,2.65c-0.61,0.25 -1.17,0.59 -1.69,0.98l-2.49,-1c-0.23,-0.09 -0.49,0 -0.61,0.22l-2,3.46c-0.13,0.22 -0.07,0.49 0.12,0.64l2.11,1.65c-0.04,0.32 -0.07,0.65 -0.07,0.98s0.03,0.66 0.07,0.98l-2.11,1.65c-0.19,0.15 -0.24,0.42 -0.12,0.64l2,3.46c0.12,0.22 0.39,0.3 0.61,0.22l2.49,-1c0.52,0.4 1.08,0.73 1.69,0.98l0.38,2.65c0.03,0.24 0.24,0.42 0.49,0.42h4c0.25,0 0.46,-0.18 0.49,-0.42l0.38,-2.65c0.61,-0.25 1.17,-0.59 1.69,-0.98l2.49,1c0.23,0.09 0.49,0 0.61,-0.22l2,-3.46c0.12,-0.22 0.07,-0.49 -0.12,-0.64l-2.11,-1.65zM12,15.5c-1.93,0 -3.5,-1.57 -3.5,-3.5s1.57,-3.5 3.5,-3.5 3.5,1.57 3.5,3.5 -1.57,3.5 -3.5,3.5z" fill="#808080" /> </svg></button>
+<button class="theme-btn" id="themeBtn" onclick="openSettingsModal()" title="设" data-i18n-title="settings" data-i18n-title="settings"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M19.43,12.98c0.04,-0.32 0.07,-0.64 0.07,-0.98s-0.03,-0.66 -0.07,-0.98l2.11,-1.65c0.19,-0.15 0.24,-0.42 0.12,-0.64l-2,-3.46c-0.12,-0.22 -0.39,-0.3 -0.61,-0.22l-2.49,1c-0.52,-0.4 -1.08,-0.73 -1.69,-0.98l-0.38,-2.65C14.46,2.18 14.25,2 14,2h-4c-0.25,0 -0.46,0.18 -0.49,0.42l-0.38,2.65c-0.61,0.25 -1.17,0.59 -1.69,0.98l-2.49,-1c-0.23,-0.09 -0.49,0 -0.61,0.22l-2,3.46c-0.13,0.22 -0.07,0.49 0.12,0.64l2.11,1.65c-0.04,0.32 -0.07,0.65 -0.07,0.98s0.03,0.66 0.07,0.98l-2.11,1.65c-0.19,0.15 -0.24,0.42 -0.12,0.64l2,3.46c0.12,0.22 0.39,0.3 0.61,0.22l2.49,-1c0.52,0.4 1.08,0.73 1.69,0.98l0.38,2.65c0.03,0.24 0.24,0.42 0.49,0.42h4c0.25,0 0.46,-0.18 0.49,-0.42l0.38,-2.65c0.61,-0.25 1.17,-0.59 1.69,-0.98l2.49,1c0.23,0.09 0.49,0 0.61,-0.22l2,-3.46c0.12,-0.22 0.07,-0.49 -0.12,-0.64l-2.11,-1.65zM12,15.5c-1.93,0 -3.5,-1.57 -3.5,-3.5s1.57,-3.5 3.5,-3.5 3.5,1.57 3.5,3.5 -1.57,3.5 -3.5,3.5z" fill="#808080" /> </svg></button>
 <div class="modal-overlay settings-overlay" id="settingsModal" style="display: none;" onclick="if(event.target===this)closeSettingsModal()">
     <div class="modal settings-modal">
         <h3 data-i18n="settings">设置</h3>
@@ -74,16 +146,46 @@
             </div>
         </div>
         <div class="settings-group">
+            <div class="settings-label" data-i18n="glass_effect">玻璃效果</div>
+            <div class="settings-options">
+                <button class="settings-opt" id="optGlassOrig" onclick="applyGlassStyle('orig')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/></svg> <span data-i18n="glass_orig">原样</span></button>
+                <button class="settings-opt" id="optGlassLiquid" onclick="applyGlassStyle('liquid')"><svg viewBox="0 0 24 24"><path d="M12 2.5s6.8 7.3 6.8 11.6a6.8 6.8 0 0 1-13.6 0C5.2 9.8 12 2.5 12 2.5z" fill="currentColor"/></svg> <span data-i18n="glass_liquid">液态</span></button>
+            </div>
+            <div class="settings-tip" data-i18n="glass_tip">液态：iOS 风格玻璃折射，仅 Chromium 内核完整生效</div>
+        </div>
+        <div class="settings-group">
+            <div class="settings-label" data-i18n="glass_shape">液态形状</div>
+            <div class="settings-options">
+                <button class="settings-opt" id="optShapeRound" onclick="applyGlassShape('round')"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="5" fill="none" stroke="currentColor" stroke-width="2"/></svg> <span data-i18n="shape_round">圆角</span></button>
+                <button class="settings-opt" id="optShapeSquare" onclick="applyGlassShape('square')"><svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg> <span data-i18n="shape_square">方角</span></button>
+            </div>
+            <div class="settings-tip" data-i18n="shape_tip">仅玻璃效果为「液态」时生效</div>
+        </div>
+        <div class="settings-group">
+            <div class="settings-label" data-i18n="fullscreen">全屏</div>
+            <div class="settings-options">
+                <button class="settings-opt" id="optFsOn" onclick="enterFullscreen()">⛶ <span data-i18n="enter_fullscreen">进入全屏</span></button>
+                <button class="settings-opt" id="optFsOff" onclick="exitFullscreen()">⛶ <span data-i18n="exit_fullscreen">退出全屏</span></button>
+            </div>
+        </div>
+        <div class="settings-group">
             <div class="settings-label" data-i18n="font_size">文字大小</div>
             <div class="fs-row">
-                <input type="range" id="uiFsRange" min="11" max="18" step="1" value="13">
+                <input type="range" id="uiFsRange" min="11" max="24" step="1" value="13">
                 <span class="fs-val" id="uiFsVal">13px</span>
             </div>
-            <div class="fs-preview" id="fsPreview">Ats编辑器</div>
+        </div>
+        <div class="settings-group">
+            <div class="settings-label" data-i18n="refresh_label">刷新</div>
+            <div class="settings-options">
+                <button class="settings-opt" onclick="refreshPage()"><span class="refresh-icon">⟳</span> <span data-i18n="refresh_page">刷新页面</span></button>
+            </div>
+            <div class="settings-tip" data-i18n="refresh_tip">修改源码后点此刷新即可生效</div>
         </div>
         <div class="modal-actions settings-actions">
             <button class="btn-cancel" onclick="closeSettingsModal()" data-i18n="close">关闭</button>
         </div>
+    </div>
 </div>
 
 <!-- 首次进入：语言选择 -->
@@ -96,7 +198,7 @@
             <button class="fl-opt" onclick="pickFirstLang('zh')">🇨🇳 中文</button>
             <button class="fl-opt" onclick="pickFirstLang('en')">🇬🇧 English</button>
         </div>
-        <button class="fl-skip" onclick="closeFirstLang()" data-i18n="close">关闭</button>
+        <button class="fl-skip" id="flSkipBtn" onclick="closeFirstLang()" data-i18n="close">关闭</button>
     </div>
 </div>
 
@@ -105,7 +207,7 @@
     <div class="repo-panel">
         <div class="repo-head">
             <span class="repo-title"><svg style="width:18px;height:18px;vertical-align:-3px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M4,4h16c1.1,0 2,0.9 2,2v12c0,1.1 -0.9,2 -2,2H4c-1.1,0 -2,-0.9 -2,-2V6c0,-1.1 0.9,-2 2,-2zM4,8v10h16V8H4zM6,10h5v2H6v-2zM6,14h8v2H6v-2z" fill="#7dd3fc" /> </svg> <span data-i18n="repo">文件仓库</span></span>
-            <button class="repo-add-btn" id="repoAddBtn" onclick="repoPickFiles()" title="上传文件" data-i18n-title="upload">
+            <button class="repo-add-btn" id="repoAddBtn" onclick="repoPickFiles()" title="上传文" data-i18n-title="upload" data-i18n-title="upload">
   <svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M10.5,10.5 L10.5,4
              A1.5,1.5 0 0 1 13.5,4
@@ -117,8 +219,12 @@
              A1.5,1.5 0 0 1 4,10.5 Z"/>
   </svg>
 </button>
-                <button class="repo-close" onclick="closeRepoViewer()" title="关闭" data-i18n-title="close">✕</button>
+                <button class="repo-close" onclick="closeRepoViewer()" title="关" data-i18n-title="close" data-i18n-title="close">✕</button>
             </div>
+        <div class="repo-toolbar" id="repoSearchBar">
+            <input type="text" id="repoSearchInput" class="repo-search-input" placeholder="搜索仓库文件…" data-i18n-ph="repo_search_ph" spellcheck="false" autocomplete="off">
+            <button class="repo-sort-btn" id="repoSortBtn" onclick="repoCycleSort()" title="点击切换排序方式" data-i18n-title="sort_tip">⇅ <span id="repoSortLabel">按时间</span></button>
+            <span class="repo-stats" id="repoStats"></span>
         </div>
         <div class="repo-toolbar" id="repoSelectBar" style="display: none;">
             <label class="repo-check-all"><input type="checkbox" id="repoCheckAll" onchange="repoToggleAll(this.checked)"><span data-i18n="repo_selectall">全选</span></label>
@@ -159,14 +265,16 @@
         <button class="tools-menu-item" type="button" onclick="onToolsBase64(event)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M7,7h10v3l4,-4 -4,-4v3L5,5v6h2L7,7zM17,17L7,17v-3l-4,4 4,4v-3h12v-6h-2v4z" fill="#FFFFFF" /> </svg><span data-i18n="convert">转换解压</span></button>
         <button class="tools-menu-item" type="button" onclick="onToolsImg(event)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M12,2C6.49,2 2,6.49 2,12s4.49,10 10,10c1.38,0 2.5,-1.12 2.5,-2.5c0,-0.61 -0.23,-1.2 -0.64,-1.67c-0.08,-0.1 -0.13,-0.21 -0.13,-0.33c0,-0.28 0.22,-0.5 0.5,-0.5H16c3.31,0 6,-2.69 6,-6C22,6.04 17.51,2 12,2zM17.5,13c-0.83,0 -1.5,-0.67 -1.5,-1.5s0.67,-1.5 1.5,-1.5s1.5,0.67 1.5,1.5S18.33,13 17.5,13zM15.5,9C14.67,9 14,8.33 14,7.5S14.67,6 15.5,6S17,6.67 17,7.5S16.33,9 15.5,9zM11.5,7C10.67,7 10,6.33 10,5.5S10.67,4 11.5,4S13,4.67 13,5.5S12.33,7 11.5,7zM7.5,9C6.67,9 6,8.33 6,7.5S6.67,6 7.5,6S9,6.67 9,7.5S8.33,9 7.5,9zM6.5,13C5.67,13 5,12.33 5,11.5S5.67,10 6.5,10S8,10.67 8,11.5S7.33,13 6.5,13z" fill="#FFFFFF" /> </svg><span data-i18n="img_tool">编辑图片</span></button>
         <button class="tools-menu-item" type="button" onclick="onToolsRepo(event)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M4,4h16c1.1,0 2,0.9 2,2v12c0,1.1 -0.9,2 -2,2H4c-1.1,0 -2,-0.9 -2,-2V6c0,-1.1 0.9,-2 2,-2zM4,8v10h16V8H4zM6,10h5v2H6v-2zM6,14h8v2H6v-2z" fill="#FFFFFF" /> </svg><span data-i18n="repo">文件仓库</span></button>
+        <button class="tools-menu-item" type="button" onclick="onToolsAiEdit(event)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l2.1 5.9L20 10l-5.9 2.1L12 18l-2.1-5.9L4 10l5.9-2.1L12 2zM19.5 15.2l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z" fill="#FFFFFF"/></svg><span data-i18n="ai_edit">AI 编辑</span></button>
+        <button class="tools-menu-item" type="button" onclick="onToolsSrcEditor(event)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M8.5 4L3.5 12l5 8M15.5 4l5 8-5 8"/></svg><span data-i18n="edit_source">编辑源码</span></button>
         <button class="tools-menu-item" id="downloadBtn" type="button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M17,11L15.6,9.6L13,12.2L13,2L11,2L11,12.2L8.4,9.6L7,11L12,16L17,11ZM5,19v-8H3v8c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2v-8h-2v8H5Z" fill="#FFFFFF" /> </svg><span data-i18n="download_app">下载应用</span></button>
     </div>
 </div>
 
 <div class="model-viewer-overlay" id="modelViewerOverlay">
     <div class="model-viewer-header">
-        <span>Ats模型查看器</span>
-        <button class="model-viewer-close" onclick="closeModelViewer()" title="关闭">✕</button>
+        <span data-i18n="mv_title">Ats模型查看器</span>
+        <button class="model-viewer-close" onclick="closeModelViewer()" title="关" data-i18n-title="close">✕</button>
     </div>
     <iframe id="modelViewerFrame" sandbox="allow-scripts allow-same-origin allow-modals allow-popups allow-downloads"></iframe>
 </div>
@@ -174,7 +282,7 @@
 <div class="model-viewer-overlay" id="appViewerOverlay">
     <div class="model-viewer-header">
         <span data-i18n="download_app">下载应用</span>
-        <button class="model-viewer-close" onclick="closeAppViewer()" title="关闭" data-i18n-title="close">✕</button>
+        <button class="model-viewer-close" onclick="closeAppViewer()" title="关" data-i18n-title="close" data-i18n-title="close">✕</button>
     </div>
     <iframe id="appViewerFrame"
             sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
@@ -183,8 +291,8 @@
 
 <div class="model-viewer-overlay" id="toolViewerOverlay">
     <div class="model-viewer-header">
-        <span id="toolViewerTitle"><svg style="width:18px;height:18px;vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M7,7h10v3l4,-4 -4,-4v3L5,5v6h2L7,7zM17,17L7,17v-3l-4,4 4,4v-3h12v-6h-2v4z" fill="#FFFFFF" /> </svg> 转换解压</span>
-        <button class="model-viewer-close" onclick="closeToolViewer()" title="关闭" data-i18n-title="close">✕</button>
+        <span id="toolViewerTitle"><svg style="width:18px;height:18px;vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M7,7h10v3l4,-4 -4,-4v3L5,5v6h2L7,7zM17,17L7,17v-3l-4,4 4,4v-3h12v-6h-2v4z" fill="#FFFFFF" /> </svg> <span data-i18n="convert">转换解压</span></span>
+        <button class="model-viewer-close" onclick="closeToolViewer()" title="关" data-i18n-title="close" data-i18n-title="close">✕</button>
     </div>
     <iframe id="toolViewerFrame"
             sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads"></iframe>
@@ -192,7 +300,8 @@
 
 <div class="toolbar" id="toolbar" style="display: none;">
     <div class="toolbar-row">
-        <button class="btn-toggle-tree" id="btnToggleTree" onclick="toggleFileTree()" title="收起/展开文件树">☰</button>
+        <button class="btn-toggle-tree" id="btnToggleTree" onclick="toggleFileTree()" title="收起/展开文件" data-i18n-title="toggle_tree"><svg viewBox="0 0 24 24"><path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+        <button class="btn-exit" id="btnExit" onclick="exitProject()" title="退出项目" data-i18n-title="exit"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg></button>
         <button class="btn-run" id="btnRun" onclick="runCode()"><span data-i18n="run">▶运行</span></button>
         <button class="btn-stop" id="btnStop" onclick="stopPreview()"><span data-i18n="stop">✕ 关闭</span></button>
         <div class="zip-wrapper" id="zipWrapper">
@@ -202,20 +311,20 @@
                 <button class="zip-menu-item" onclick="onZipMenuUpload(event)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M5,19v-8H3v8c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2v-8h-2v8H5ZM17,7 l-1.4,1.4L13,5.8V16h-2V5.8L8.4,8.4 7,7l5,-5 5,5Z" fill="#8B4513" /> </svg><span data-i18n="upload_zip">上传ZIP</span></button>
             </div>
         </div>
-        <button class="btn-exit" id="btnExit" onclick="exitProject()"><span data-i18n="exit">退出</span></button>
+        <button class="btn-ai" id="btnAIEdit" onclick="openAiPanel()" title="AI 编辑（GLM 驱动，可直接修改项目文件）" data-i18n-title="ai_edit"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l2.1 5.9L20 10l-5.9 2.1L12 18l-2.1-5.9L4 10l5.9-2.1L12 2z" fill="#FFFFFF"/></svg><span data-i18n="ai_edit">AI 编辑</span></button>
         <div class="row-right">
-            <button class="btn-icon" id="btnUndo" onclick="undo()" title="撤销 (Ctrl+Z)" disabled><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M12.5,8c-2.65,0 -5.05,0.99 -6.9,2.6L2,7v9h9l-3.62,-3.62c1.39,-1.16 3.16,-1.88 5.12,-1.88 3.54,0 6.55,2.31 7.6,5.5l2.37,-0.78C21.08,11.03 17.15,8 12.5,8z" fill="#FFFFFF" /> </svg></button>
-            <button class="btn-icon" id="btnRedo" onclick="redo()" title="重做 (Ctrl+Y)" disabled><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M18.4,10.6C16.55,8.99 14.15,8 11.5,8c-4.65,0 -8.58,3.03 -9.96,7.22L3.9,16c1.05,-3.19 4.05,-5.5 7.6,-5.5 1.95,0 3.73,0.72 5.12,1.88L13,16h9V7l-3.6,3.6z" fill="#FFFFFF" /> </svg></button>
+            <button class="btn-icon" id="btnUndo" onclick="undo()" title="撤销 (Ctrl+Z" data-i18n-title="undo_t" disabled><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M12.5,8c-2.65,0 -5.05,0.99 -6.9,2.6L2,7v9h9l-3.62,-3.62c1.39,-1.16 3.16,-1.88 5.12,-1.88 3.54,0 6.55,2.31 7.6,5.5l2.37,-0.78C21.08,11.03 17.15,8 12.5,8z" fill="#FFFFFF" /> </svg></button>
+            <button class="btn-icon" id="btnRedo" onclick="redo()" title="重做 (Ctrl+Y" data-i18n-title="redo_t" disabled><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.0 24.0"> <path d="M18.4,10.6C16.55,8.99 14.15,8 11.5,8c-4.65,0 -8.58,3.03 -9.96,7.22L3.9,16c1.05,-3.19 4.05,-5.5 7.6,-5.5 1.95,0 3.73,0.72 5.12,1.88L13,16h9V7l-3.6,3.6z" fill="#FFFFFF" /> </svg></button>
             <span class="save-indicator" id="saveIndicator" data-i18n="saved">已保存 ✓</span>
         </div>
     </div>
     <div class="toolbar-row search-row">
-        <span id="currentFileName" class="current-file-name" title="当前文件" data-i18n="no_file">未选择</span>
+        <span id="currentFileName" class="current-file-name" title="当前文" data-i18n-title="cur_file" data-i18n="no_file">未选择</span>
         <input type="text" id="searchInput" placeholder="搜索（区分大小写）" data-i18n-ph="search_ph"
                onkeydown="if(event.key==='Enter'){event.preventDefault();doSearch();}"
                oninput="onSearchInput()">
-        <button class="btn-search" onclick="doSearch()" title="搜索下一个 (回车)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5,14l-0.8,0l-0.3,-0.3c1,-1.1 1.6,-2.6 1.6,-4.2C16,5.9 13.1,3 9.5,3C5.9,3 3,5.9 3,9.5S5.9,16 9.5,16c1.6,0 3.1,-0.6 4.2,-1.6l0.3,0.3l0,0.8l5,5l1.5,-1.5L15.5,14zM9.5,14C7,14 5,12 5,9.5S7,5 9.5,5C12,5 14,7 14,9.5S12,14 9.5,14z" fill="#1177BB" /></svg></button>
-        <button class="btn-search" id="btnMdPreview" onclick="mdRequestPreview()" title="预览 Markdown" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,4.5C7,4.5 2.73,7.61 1,12c1.73,4.39 6,7.5 11,7.5s9.27,-3.11 11,-7.5c-1.73,-4.39 -6,-7.5 -11,-7.5zM12,17c-2.76,0 -5,-2.24 -5,-5s2.24,-5 5,-5 5,2.24 5,5 -2.24,5 -5,5zM12,9c-1.66,0 -3,1.34 -3,3s1.34,3 3,3 3,-1.34 3,-3 -1.34,-3 -3,-3z" fill="#4ec9b0" /></svg></button>
+        <button class="btn-search" onclick="doSearch()" title="搜索下一个 (回车" data-i18n-title="search_next"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5,14l-0.8,0l-0.3,-0.3c1,-1.1 1.6,-2.6 1.6,-4.2C16,5.9 13.1,3 9.5,3C5.9,3 3,5.9 3,9.5S5.9,16 9.5,16c1.6,0 3.1,-0.6 4.2,-1.6l0.3,0.3l0,0.8l5,5l1.5,-1.5L15.5,14zM9.5,14C7,14 5,12 5,9.5S7,5 9.5,5C12,5 14,7 14,9.5S12,14 9.5,14z" fill="#1177BB" /></svg></button>
+        <button class="btn-search" id="btnMdPreview" onclick="mdRequestPreview()" title="预览 Markdow" data-i18n-title="md_preview" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,4.5C7,4.5 2.73,7.61 1,12c1.73,4.39 6,7.5 11,7.5s9.27,-3.11 11,-7.5c-1.73,-4.39 -6,-7.5 -11,-7.5zM12,17c-2.76,0 -5,-2.24 -5,-5s2.24,-5 5,-5 5,2.24 5,5 -2.24,5 -5,5zM12,9c-1.66,0 -3,1.34 -3,3s1.34,3 3,3 3,-1.34 3,-3 -1.34,-3 -3,-3z" fill="#4ec9b0" /></svg></button>
         <div class="search-status" id="searchStatus"></div>
     </div>
 </div>
@@ -224,7 +333,7 @@
     <div class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header">
             <button class="btn-back-folder" id="btnBackFolder" onclick="backToParent()" data-i18n-title="back" title="返回上一层">← <span data-i18n="back_t">返回</span></button>
-            <nav class="folder-breadcrumb" id="folderBreadcrumb" title="点击任意层级可直接跳转"></nav>
+            <nav class="folder-breadcrumb" id="folderBreadcrumb" title="点击任意层级可直接跳" data-i18n-title="crumb_tip"></nav>
         </div>
         <div class="file-tree-actions">
             <button onclick="newItem()" data-i18n="new_btn">+新建</button>
@@ -239,7 +348,7 @@
             <div class="gutter" id="gutter"></div>
             <div class="code-wrap">
                 <pre class="highlight-layer" id="highlightLayer"></pre>
-                <textarea id="codeEditor" wrap="soft" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="选择或新建一个文件，然后在这里编写代码... Ctrl+滚轮 / 双指捏合 可缩放字号" disabled></textarea>
+                <textarea id="codeEditor" wrap="soft" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="选择或新建一个文件，然后在这里编写代码... Ctrl+滚轮 / 双指捏合 可缩放字号" data-i18n-ph="editor_ph" disabled></textarea>
             </div>
             <div class="image-viewer" id="imageViewer">
                 <img id="imageViewerImg" src="" alt="">
@@ -253,8 +362,15 @@
                     <div class="audio-meta" id="audioViewerMeta"></div>
                 </div>
             </div>
+            <div class="video-viewer" id="videoViewer">
+                <div class="video-viewer-inner">
+                    <div class="video-name" id="videoViewerName"></div>
+                    <video id="videoViewerPlayer" controls preload="metadata" playsinline></video>
+                    <div class="video-meta" id="videoViewerMeta"></div>
+                </div>
+            </div>
             <div class="model-inline-viewer" id="modelInlineViewer">
-                <iframe id="modelInlineFrame" title="模型预览" sandbox="allow-scripts allow-same-origin"></iframe>
+                <iframe id="modelInlineFrame" title="模型预" data-i18n-title="model_preview" sandbox="allow-scripts allow-same-origin"></iframe>
             </div>
             <div class="font-viewer" id="fontViewer">
                 <div class="font-viewer-inner">
@@ -289,13 +405,15 @@
     </div>
 
     <div class="project-list-view" id="projectListView">
-        <h1 data-i18n="title">Ats编辑器</h1>
-        <p class="subtitle" data-i18n="subtitle">点击项目进入编辑器，或点击右下角 + 创建新项目</p>
-        <div class="project-cards" id="projectCards"></div>
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <div class="icon">📂</div>
-            <p data-i18n="empty_projects">还没有项目</p>
-            <p style="font-size: 12px; margin-top: 8px;" data-i18n="empty_projects_tip">点击右下角 + 创建你的第一个项目</p>
+        <div class="plist-inner">
+            <h1 data-i18n="title">Ats编辑器</h1>
+            <p class="subtitle" data-i18n="subtitle">点击项目进入编辑器，或点击右下角 + 创建新项目</p>
+            <div class="project-cards" id="projectCards"></div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="icon">📂</div>
+                <p data-i18n="empty_projects">还没有项目</p>
+                <p style="font-size: 12px; margin-top: 8px;" data-i18n="empty_projects_tip">点击右下角 + 创建你的第一个项目</p>
+            </div>
         </div>
     </div>
 </div>
@@ -303,19 +421,19 @@
 <div class="preview-area" id="previewArea">
     <div class="preview-area-header">
         <span data-i18n="preview_btn">▶ 预览</span>
-        <button class="close-preview" onclick="stopPreview()" title="关闭预览 (Esc)">✕</button>
+        <button class="close-preview" onclick="stopPreview()" title="关闭预览 (Esc" data-i18n-title="close_preview">✕</button>
     </div>
     <div class="preview-area-body">
         <iframe id="previewFrameFull" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads"></iframe>
     </div>
 </div>
 
-<button class="fab" id="fab" onclick="showNewProjectModal()" title="新建项目">+</button>
+<button class="fab" id="fab" onclick="showNewProjectModal()" title="新建项" data-i18n-title="new_project">+</button>
 
 <div class="modal-overlay" id="projectModal" style="display: none;">
     <div class="modal">
         <h3 data-i18n="new_project">新建项目</h3>
-        <input type="text" id="projectName" placeholder="输入项目名称" autofocus>
+        <input type="text" id="projectName" placeholder="输入项目名称" data-i18n-ph="project_name_ph" autofocus>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="hideNewProjectModal()" data-i18n="cancel">取消</button>
             <button class="btn-confirm" onclick="confirmNewProject()" data-i18n="create">创建</button>
@@ -338,7 +456,7 @@
     </div>
 </div>
 
-<button class="warn-btn" id="warnBtn" title="拖动移动点击查看运行日志">
+<button class="warn-btn" id="warnBtn" title="拖动移动点击查看运行日" data-i18n-title="warn_tip">
     ⚠︎
     <span class="warn-badge" id="warnBadge"></span>
 </button>
@@ -351,9 +469,9 @@
             <button class="warn-filter" data-filter="error" data-i18n="err_f">错误</button>
             <button class="warn-filter" data-filter="warn" data-i18n="warn_f">警告</button>
         </div>
-        <button onclick="copyWarnLog()" title="复制全部日志" data-i18n="copy_log" data-i18n-title="copy_log_t">复制</button>
-        <button onclick="clearWarnLog()" title="清空日志" data-i18n="clear_log" data-i18n-title="clear_log_t">清空</button>
-        <button onclick="hideWarnPanel()" title="关闭">✕</button>
+        <button onclick="copyWarnLog()" title="复制全部日" data-i18n-title="copy_log_t" data-i18n="copy_log" data-i18n-title="copy_log_t">复制</button>
+        <button onclick="clearWarnLog()" title="清空日" data-i18n-title="clear_log_t" data-i18n="clear_log" data-i18n-title="clear_log_t">清空</button>
+        <button onclick="hideWarnPanel()" title="关" data-i18n-title="close">✕</button>
     </div>
     <div class="warn-list" id="warnList"></div>
 </div>
@@ -362,19 +480,19 @@
 
 <div class="paste-progress" id="pasteProgress">
     <div class="paste-progress-fill" id="pasteProgressFill"></div>
-    <div class="paste-progress-text" id="pasteProgressText">粘贴中 0%</div>
+    <div class="paste-progress-text" id="pasteProgressText" data-i18n="pasting_init">粘贴中 0%</div>
 </div>
 
 <div class="paste-progress" id="uploadProgress">
     <div class="paste-progress-fill" id="uploadProgressFill"></div>
-    <div class="paste-progress-text" id="uploadProgressText">上传中 0%</div>
+    <div class="paste-progress-text" id="uploadProgressText" data-i18n="uploading_init">上传中 0%</div>
 </div>
 
 <input type="file" id="fileInput" accept="*/*" multiple style="display:none" onchange="uploadFile(this)">
 <input type="file" id="zipInput" accept=".zip,application/zip" style="display:none" onchange="importZip(this)">
 
 <template id="inlineModelTemplate">
-<!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -385,30 +503,34 @@
 <div id="app"></div>
 <div class="hud-top">
     <span class="model-badge" id="badge">3D</span>
-    <span class="model-title" id="title">模型</span>
+    <span class="model-title" id="title" data-t="模型">模型</span>
     <span class="model-stats" id="stats"></span>
 </div>
 <div class="hud-bottom">
-    <span><kbd>拖拽</kbd> 旋转</span>
-    <span><kbd>滚轮</kbd> 缩放</span>
-    <span><kbd>右键</kbd> 平移</span>
-    <button class="btn-reset" id="btnReset" type="button">⟲ 重置视角</button>
+    <span data-t="旋转"><kbd data-t="拖拽">拖拽</kbd> 旋转</span>
+    <span data-t="缩放"><kbd data-t="滚轮">滚轮</kbd> 缩放</span>
+    <span data-t="平移"><kbd data-t="右键">右键</kbd> 平移</span>
+    <button class="btn-reset" id="btnReset" type="button" data-t="⟲ 重置视角">⟲ 重置视角</button>
 </div>
 <div class="overlay-center" id="loading">
     <div class="spinner"></div>
-    <div class="overlay-text" id="loadingText">正在加载模型…</div>
+    <div class="overlay-text" id="loadingText" data-t="正在加载模型…">正在加载模型…</div>
 </div>
 <script>
 window.__MODEL__ = null;
 /*__THEME_BOOT__*/
 /* 看门狗：CDN 不可达时 module script 静默失败，12 秒后提示网络问题 */
+var __wd_en = false;
+try { __wd_en = localStorage.getItem('ats_editor_lang') === 'en' || /en/i.test(parent.document.documentElement.lang || ''); } catch (e) {}
 setTimeout(function () {
   if (!window.__MODEL_OK__) {
     var ld = document.getElementById('loading');
     var lt = document.getElementById('loadingText');
     if (ld && !ld.classList.contains('err')) {
       ld.classList.add('err');
-      if (lt) lt.textContent = '模型引擎加载超时：无法连接 unpkg.com CDN，请检查网络后重试';
+      if (lt) lt.textContent = __wd_en
+        ? 'Model engine load timed out: cannot reach unpkg.com CDN. Check your network and retry.'
+        : '模型引擎加载超时：无法连接 unpkg.com CDN，请检查网络后重试';
       ld.classList.add('show');
     }
   }
@@ -437,96 +559,128 @@ setTimeout(function () {
 <div id="app"></div>
 
 <div class="toolbar">
-  <button id="btnOpen" class="primary" title="打开本地模型文件">
+  <button id="btnOpen" class="primary" title="打开本地模型文件" data-t-title="打开本地模型文件">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-    <span class="label">打开模型</span>
+    <span class="label" data-t="打开模型">打开模型</span>
   </button>
-  <button id="btnAdd" class="accent" title="添加默认模型">
+  <button id="btnAdd" class="accent" title="添加默认模型" data-t-title="添加默认模型">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-    <span class="label">添加模型</span>
+    <span class="label" data-t="添加模型">添加模型</span>
   </button>
   <div class="sep"></div>
-  <button id="btnMove" class="active" title="移动模式 (M)">
+  <button id="btnMove" class="active" title="移动模式 (M)" data-t-title="移动模式 (M)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/><path d="M12 3 9.5 5.8M12 3l2.5 2.8M12 21l-2.5-2.8M12 21l2.5-2.8"/><path d="M3 12l2.8-2.5M3 12l2.8 2.5M21 12l-2.8-2.5M21 12l-2.8 2.5"/></svg>
-    <span class="label">移动</span>
+    <span class="label" data-t="移动">移动</span>
   </button>
-  <button id="btnRotate" title="自动旋转 (R)">
+  <button id="btnRotate" title="自动旋转 (R)" data-t-title="自动旋转 (R)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg>
-    <span class="label">自动旋转</span>
+    <span class="label" data-t="自动旋转">自动旋转</span>
   </button>
-  <button id="btnWire" title="线框模式 (W)">
+  <button id="btnWire" title="线框模式 (W)" data-t-title="线框模式 (W)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5"/><path d="M12 12v10"/></svg>
-    <span class="label">线框</span>
+    <span class="label" data-t="线框">线框</span>
   </button>
-  <button id="btnGrid" title="显示网格 (G)">
+  <button id="btnGrid" title="显示网格 (G)" data-t-title="显示网格 (G)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
-    <span class="label">网格</span>
+    <span class="label" data-t="网格">网格</span>
   </button>
-  <button id="btnReset" title="重置视角 (F)">
+  <button id="btnReset" title="重置视角 (F)" data-t-title="重置视角 (F)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-    <span class="label">重置视角</span>
+    <span class="label" data-t="重置视角">重置视角</span>
   </button>
-  <button id="btnShot" title="保存截图">
+  <button id="btnShot" title="保存截图" data-t-title="保存截图">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.2"/></svg>
-    <span class="label">截图</span>
+    <span class="label" data-t="截图">截图</span>
+  </button>
+  <div class="sep"></div>
+  <button id="btnMode" title="变换模式：移动 / 旋转 / 缩放 (T)" data-t-title="变换模式：移动 / 旋转 / 缩放 (T)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7.5 7.5"/><path d="M3 21l7.5-7.5"/></svg>
+    <span class="label" id="btnModeLabel" data-t="移动">移动</span>
   </button>
 </div>
 
 <div class="lib-pop" id="libPop">
   <div class="lib-head">
-    <span>选择要添加的模型</span>
-    <button class="lib-close" id="libClose" title="关闭">×</button>
+    <span data-t="选择要添加的模型">选择要添加的模型</span>
+    <button class="lib-close" id="libClose" title="关闭" data-t-title="关闭">×</button>
   </div>
   <div class="lib-grid" id="libGrid"></div>
 </div>
 
 <div class="panel-right" id="panelRight">
   <div class="panel-head">
-    <div class="panel-title">部件编辑</div>
-    <button class="panel-fold" id="btnFold" title="收起面板" aria-label="收起面板">
+    <div class="panel-title" data-t="部件编辑">部件编辑</div>
+    <button class="panel-fold" id="btnFold" title="收起面板" data-t-title="收起面板" aria-label="收起面板">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
     </button>
   </div>
   <div class="panel-body">
     <div class="field">
-      <label>当前选中</label>
-      <div class="value" id="selName">未选中 · 改色将应用于全部</div>
+      <label data-t="当前选中">当前选中</label>
+      <div class="value" id="selName" data-t="未选中 · 改色将应用于全部">未选中 · 改色将应用于全部</div>
     </div>
     <div class="field">
-      <label>颜色（十六进制）</label>
+      <label data-t="颜色（十六进制）">颜色（十六进制）</label>
       <div class="color-row">
-        <input type="color" id="colorPicker" value="#8fb2ff" title="拾取颜色">
-        <input type="text" id="hexInput" value="#8fb2ff" maxlength="8" spellcheck="false" autocomplete="off" title="输入十六进制颜色，回车应用">
-        <button class="icon-btn" id="btnCopyHex" title="复制颜色编号">
+        <input type="color" id="colorPicker" value="#8fb2ff" title="拾取颜色" data-t-title="拾取颜色">
+        <input type="text" id="hexInput" value="#8fb2ff" maxlength="8" spellcheck="false" autocomplete="off" title="输入十六进制颜色，回车应用" data-t-title="输入十六进制颜色，回车应用">
+        <button class="icon-btn" id="btnCopyHex" title="复制颜色编号" data-t-title="复制颜色编号">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
       </div>
     </div>
+    <div class="field">
+      <label data-t="材质 · 金属度">材质 · 金属度</label>
+      <div class="mat-row">
+        <input type="range" id="matMetal" min="0" max="100" value="35">
+        <span class="mat-val" id="matMetalV">35%</span>
+      </div>
+    </div>
+    <div class="field">
+      <label data-t="材质 · 粗糙度">材质 · 粗糙度</label>
+      <div class="mat-row">
+        <input type="range" id="matRough" min="0" max="100" value="33">
+        <span class="mat-val" id="matRoughV">33%</span>
+      </div>
+    </div>
     <div class="btn-row">
-      <button class="panel-btn" id="btnApplyAll" title="把当前颜色应用到所有部件">
+      <button class="panel-btn" id="btnApplyAll" title="把当前颜色应用到所有部件" data-t-title="把当前颜色应用到所有部件" data-t="应用到全部">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
         应用到全部
       </button>
+      <button class="panel-btn" id="btnDuplicate" title="复制选中的部件（含独立材质）" data-t-title="复制选中的部件（含独立材质）" data-t="复制部件" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        复制部件
+      </button>
     </div>
     <div class="btn-row">
-      <button class="panel-btn danger" id="btnDelete" disabled>
+      <button class="panel-btn" id="btnViewFront" title="正视视角" data-t-title="正视视角" data-t="正视">正视</button>
+      <button class="panel-btn" id="btnViewSide" title="侧视视角" data-t-title="侧视视角" data-t="侧视">侧视</button>
+      <button class="panel-btn" id="btnViewTop" title="俯视视角" data-t-title="俯视视角" data-t="俯视">俯视</button>
+    </div>
+    <div class="btn-row">
+      <button class="panel-btn danger" id="btnDelete" disabled data-t="删除选中部件">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
         删除选中部件
       </button>
     </div>
     <div class="btn-row">
-      <button class="panel-btn" id="btnExportModel" title="把当前场景导出为 GLB 模型文件">
+      <button class="panel-btn" id="btnExportModel" title="把当前场景导出为 GLB 模型文件" data-t-title="把当前场景导出为 GLB 模型文件" data-t="导出(.glb)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>
         导出(.glb)
       </button>
+      <button class="panel-btn" id="btnSaveModelRepo" title="把当前场景保存到文件仓库" data-t-title="把当前场景保存到文件仓库" data-t="存仓库">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v13H4zM4 7l2-3h12l2 3M10 11h4"/></svg>
+        存仓库
+      </button>
     </div>
     <div class="btn-row">
-      <button class="panel-btn" id="btnRestore" title="撤销所有删除与改色">
+      <button class="panel-btn" id="btnRestore" title="撤销所有删除与改色" data-t-title="撤销所有删除与改色" data-t="恢复">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/></svg>
         恢复
       </button>
     </div>
-    <div class="panel-tip">点击模型选中部件 · 拖动<b>箭头</b>移动位置<br>十六进制支持 <b>#RRGGBB</b> 或 <b>#RGB</b></div>
+    <div class="panel-tip" data-t-html='点击模型选中部件 · 拖动<b data-t="箭头">箭头</b>移动位置<br>十六进制支持 <b>#RRGGBB</b> 或 <b>#RGB</b><br>金属度 / 粗糙度对选中部件生效，未选中时应用于全部'>点击模型选中部件 · 拖动<b data-t="箭头">箭头</b>移动位置<br>十六进制支持 <b>#RRGGBB</b> 或 <b>#RGB</b><br>金属度 / 粗糙度对选中部件生效，未选中时应用于全部</div>
   </div>
 </div>
 
@@ -536,13 +690,13 @@ setTimeout(function () {
 </div>
 
 <div class="hint">
-  拖入 <kbd>.glb</kbd> <kbd>.gltf</kbd> <kbd>.obj</kbd> <kbd>.stl</kbd><br>
-  <kbd>M</kbd> 移动 · <kbd>R</kbd> 旋转 · <kbd>W</kbd> 线框 · <kbd>G</kbd> 网格<br>
+  <span data-t="拖入">拖入</span> <kbd>.glb</kbd> <kbd>.gltf</kbd> <kbd>.obj</kbd> <kbd>.stl</kbd><br>
+  <kbd>M</kbd> 移动 · <kbd>T</kbd> 变换模式 · <kbd>R</kbd> 旋转 · <kbd>W</kbd> 线框 · <kbd>G</kbd> 网格<br>
   <kbd>F</kbd> 视角 · <kbd>C</kbd> 收起 · <kbd>Del</kbd> 删除 · <kbd>Esc</kbd> 取消
 </div>
 
-<div class="drop" id="drop"><div class="drop-inner"><strong>松开鼠标以载入模型</strong><span>支持 .glb / .gltf / .obj / .stl（可一并拖入贴图与 .bin）</span></div></div>
-<div class="loading" id="loading"><div class="spinner"></div><span id="loadingText">加载中…</span></div>
+<div class="drop" id="drop"><div class="drop-inner"><strong data-t="松开鼠标以载入模型">松开鼠标以载入模型</strong><span data-t="支持 .glb / .gltf / .obj / .stl（可一并拖入贴图与 .bin）">支持 .glb / .gltf / .obj / .stl（可一并拖入贴图与 .bin）</span></div></div>
+<div class="loading" id="loading"><div class="spinner"></div><span id="loadingText" data-t="加载中…">加载中…</span></div>
 <div class="toast" id="toast"></div>
 
 <input type="file" id="fileInput2" multiple hidden accept=".glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp,.ktx2,.hdr">
@@ -560,48 +714,48 @@ setTimeout(function () {
 </template>
 
 <template id="base64ToolTemplate">
-<!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Base64 编码 / 解码 / 压缩包工具</title>
+<title data-t="Base64 编码 / 解码 / 压缩包工具">Base64 编码 / 解码 / 压缩包工具</title>
 <link rel="stylesheet" href="css/base64-tool.css">
 </head>
 <body>
 <div class="app">
 <div class="hero">
   <div class="hero-icon">🧰</div>
-  <h1>Base64 编码 / 解码 工具</h1>
+  <h1 data-t="Base64 编码 / 解码 工具">Base64 编码 / 解码 工具</h1>
   <div class="hero-line"></div>
-  <p class="sub">文本 / 文件 → Base64 · Base64 → 文本 / 文件 · 支持 ZIP 压缩包打包与解压保存</p>
+  <p class="sub" data-t="文本 / 文件 → Base64 · Base64 → 文本 / 文件 · 支持 ZIP 压缩包打包与解压保存">文本 / 文件 → Base64 · Base64 → 文本 / 文件 · 支持 ZIP 压缩包打包与解压保存</p>
 </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="encode">⚡ 编码 → Base64</button>
-    <button class="tab" data-tab="decode">📦 Base64 → 还原</button>
+    <button class="tab active" data-tab="encode" data-t="⚡ 编码 → Base64">⚡ 编码 → Base64</button>
+    <button class="tab" data-tab="decode" data-t="📦 Base64 → 还原">📦 Base64 → 还原</button>
   </div>
 
   <section id="panel-encode">
     <div class="card fade-up">
       <div class="seg">
-        <button class="seg-btn active" data-mode="text">📝 文本</button>
-        <button class="seg-btn" data-mode="file">📁 文件 / ZIP</button>
+        <button class="seg-btn active" data-mode="text" data-t="📝 文本">📝 文本</button>
+        <button class="seg-btn" data-mode="file" data-t="📁 文件 / ZIP">📁 文件 / ZIP</button>
       </div>
 
       <div id="mode-text">
-        <textarea id="textInput" placeholder="在这里输入要编码的文本（支持中文 / emoji）…"></textarea>
+        <textarea id="textInput" placeholder="在这里输入要编码的文本（支持中文 / emoji）…" data-t-ph="在这里输入要编码的文本（支持中文 / emoji）…"></textarea>
         <div class="row right">
-          <button class="btn ghost" id="btnClearText">清空</button>
-          <button class="btn primary" id="btnEncodeText">生成 Base64</button>
+          <button class="btn ghost" id="btnClearText" data-t="清空">清空</button>
+          <button class="btn primary" id="btnEncodeText" data-t="生成 Base64">生成 Base64</button>
         </div>
       </div>
 
       <div id="mode-file" hidden>
         <div class="drop" id="dropZone">
           <div class="drop-icon">📦</div>
-          <div class="drop-main" id="dropMain">点击选择文件，或把文件 / 文件夹拖到这里</div>
-          <div class="drop-sub">支持多选与整个文件夹 · 保留目录结构打包成 ZIP</div>
+          <div class="drop-main" id="dropMain" data-t="点击选择文件，或把文件 / 文件夹拖到这里">点击选择文件，或把文件 / 文件夹拖到这里</div>
+          <div class="drop-sub" data-t="支持多选与整个文件夹 · 保留目录结构打包成 ZIP">支持多选与整个文件夹 · 保留目录结构打包成 ZIP</div>
         </div>
         <input type="file" id="fileInput" multiple hidden>
 
@@ -609,41 +763,42 @@ setTimeout(function () {
         <div class="filelist" id="fileList"></div>
 
         <div class="zip-options" id="zipOptions">
-          <label class="check" id="zipToggleWrap">
+          <label class="check" id="zipToggleWrap" data-t="压缩（DEFLATE）">
             <input type="checkbox" id="zipToggle" checked>
             压缩（DEFLATE）
           </label>
-          <input type="text" class="nameinput" id="zipName" placeholder="ZIP 文件名（默认 files_时间戳.zip）" spellcheck="false">
+          <input type="text" class="nameinput" id="zipName" placeholder="ZIP 文件名（默认 files_时间戳.zip）" data-t-ph="ZIP 文件名（默认 files_时间戳.zip）" spellcheck="false">
         </div>
 
         <div class="pack-result" id="packResult" hidden>
           <div class="pr-head" id="prHead"></div>
           <div class="pr-bars">
-            <div class="pr-bar"><span class="pr-label">原始</span><div class="track"><div class="fill orig" id="prBarOrig"></div></div><b id="prSizeOrig"></b></div>
+            <div class="pr-bar"><span class="pr-label" data-t="原始">原始</span><div class="track"><div class="fill orig" id="prBarOrig"></div></div><b id="prSizeOrig"></b></div>
             <div class="pr-bar"><span class="pr-label">ZIP</span><div class="track"><div class="fill comp" id="prBarComp"></div></div><b id="prSizeComp"></b></div>
           </div>
           <div class="pr-note" id="prNote"></div>
         </div>
 
         <div class="row">
-          <button class="btn ghost" id="btnClearFiles">清空文件</button>
+          <button class="btn ghost" id="btnClearFiles" data-t="清空文件">清空文件</button>
           <div style="flex:1"></div>
-          <button class="btn" id="btnZipDownload">仅打包下载 ZIP</button>
-          <button class="btn primary" id="btnEncodeFiles">生成 Base64</button>
+          <button class="btn" id="btnZipDownload" data-t="仅打包下载 ZIP">仅打包下载 ZIP</button>
+          <button class="btn primary" id="btnEncodeFiles" data-t="生成 Base64">生成 Base64</button>
         </div>
       </div>
     </div>
 
     <div class="card fade-up">
       <div class="card-head">
-        <span class="title">Base64 输出</span>
+        <span class="title" data-t="Base64 输出">Base64 输出</span>
         <span class="info" id="outInfo"></span>
       </div>
-      <textarea id="output" class="mono" readonly placeholder="结果会显示在这里…"></textarea>
+      <textarea id="output" class="mono" readonly placeholder="结果会显示在这里…" data-t-ph="结果会显示在这里…"></textarea>
       <div class="row">
-        <button class="btn primary" id="btnCopy">📋 复制</button>
-        <button class="btn" id="btnDownloadTxt">⬇ 下载为 .txt</button>
-        <button class="btn ghost" id="btnToDecode">↪ 发送到解码区</button>
+        <button class="btn primary" id="btnCopy" data-t="📋 复制">📋 复制</button>
+        <button class="btn" id="btnDownloadTxt" data-t="⬇ 下载为 .txt">⬇ 下载为 .txt</button>
+        <button class="btn ghost" id="btnDataUrl" data-t="🔗 生成 Data URL">🔗 生成 Data URL</button>
+        <button class="btn ghost" id="btnToDecode" data-t="↪ 发送到解码区">↪ 发送到解码区</button>
       </div>
     </div>
   </section>
@@ -651,13 +806,13 @@ setTimeout(function () {
   <section id="panel-decode" hidden>
     <div class="card fade-up">
       <textarea id="decodeInput" class="mono"
-        placeholder="粘贴 Base64 字符串（可带 data:image/png;base64, 前缀，可含换行 / 空格）…"></textarea>
+        placeholder="粘贴 Base64 字符串（可带 data:image/png;base64, 前缀，可含换行 / 空格）…" data-t-ph="粘贴 Base64 字符串（可带 data:image/png;base64, 前缀，可含换行 / 空格）…"></textarea>
       <div class="row">
-        <button class="btn ghost" id="btnImportB64">📂 从 .txt 导入</button>
+        <button class="btn ghost" id="btnImportB64" data-t="📂 从 .txt 导入">📂 从 .txt 导入</button>
         <input type="file" id="b64FileInput" accept=".txt,text/plain" hidden>
         <div style="flex:1"></div>
-        <button class="btn ghost" id="btnClearDecode">清空</button>
-        <button class="btn primary" id="btnDecode">解码 / 还原</button>
+        <button class="btn ghost" id="btnClearDecode" data-t="清空">清空</button>
+        <button class="btn primary" id="btnDecode" data-t="解码 / 还原">解码 / 还原</button>
       </div>
     </div>
     <div id="resultArea" hidden></div>
@@ -674,35 +829,35 @@ setTimeout(function () {
 <template id="imgToolTemplate">
 <link rel="stylesheet" href="css/img-tool.css">
 <div class="top">
-  <button class="tbtn" id="upBtn" title="上传图片">
+  <button class="tbtn" id="upBtn" title="上传图片" data-t-title="上传图片">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    <span>上传</span>
+    <span data-t="上传">上传</span>
   </button>
-  <button class="tbtn" id="undoBtn" disabled title="撤销">
+  <button class="tbtn" id="undoBtn" disabled title="撤销" data-t-title="撤销">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-    <span>撤销</span>
+    <span data-t="撤销">撤销</span>
   </button>
   <span class="sp"></span>
-  <button class="tbtn" id="zOut" title="缩小">−</button>
+  <button class="tbtn" id="zOut" title="缩小" data-t-title="缩小">−</button>
   <span class="zoompct" id="zPct">100%</span>
-  <button class="tbtn" id="zIn" title="放大">＋</button>
-  <button class="tbtn" id="zFit" title="适应屏幕">适</button>
+  <button class="tbtn" id="zIn" title="放大" data-t-title="放大">＋</button>
+  <button class="tbtn" id="zFit" title="适应屏幕" data-t-title="适应屏幕" data-t="适">适</button>
   <span class="sp"></span>
-  <button class="tbtn" id="resetBtn" disabled title="还原原图">
+  <button class="tbtn" id="resetBtn" disabled title="还原原图" data-t-title="还原原图">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-    <span>还原</span>
+    <span data-t="还原">还原</span>
   </button>
   <div class="exp-wrap">
-    <button class="tbtn" id="dlBtn" disabled title="导出">
+    <button class="tbtn" id="dlBtn" disabled title="导出" data-t-title="导出">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span>导出</span>
+      <span data-t="导出">导出</span>
     </button>
     <div id="expMenu"></div>
   </div>
   <div class="exp-wrap">
-    <button class="tbtn primary" id="repoBtn" disabled title="存入文件仓库">
+    <button class="tbtn primary" id="repoBtn" disabled title="存入文件仓库" data-t-title="存入文件仓库">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M6 13h5"/><path d="M6 16h8"/></svg>
-      <span>存仓库</span>
+      <span data-t="存仓库">存仓库</span>
     </button>
     <div id="expMenuRepo"></div>
   </div>
@@ -710,8 +865,8 @@ setTimeout(function () {
 <div class="stage" id="stage">
   <div class="empty" id="empty">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-    <b>点击上传图片 / 视频 / 动图</b>
-    <small>支持 JPG / PNG / WebP / GIF动图 / MP4·WebM视频</small>
+    <b data-t="点击上传图片 / 视频 / 动图">点击上传图片 / 视频 / 动图</b>
+    <small data-t="支持 JPG / PNG / WebP / GIF动图 / MP4·WebM视频">支持 JPG / PNG / WebP / GIF动图 / MP4·WebM视频</small>
   </div>
   <div class="img-wrap" id="imgWrap" style="display:none;">
     <canvas id="icv"></canvas>
@@ -726,21 +881,21 @@ setTimeout(function () {
     </div>
   </div>
   <div id="textPop">
-    <input id="txtIn" placeholder="输入文字…" maxlength="120">
+    <input id="txtIn" placeholder="输入文字…" data-t-ph="输入文字…" maxlength="120">
     <div class="row">
       <div class="seg" id="txtSize">
-        <button data-s="0.04">小</button><button data-s="0.07" class="on">中</button><button data-s="0.11">大</button>
+        <button data-s="0.04" data-t="小">小</button><button data-s="0.07" class="on" data-t="中">中</button><button data-s="0.11" data-t="大">大</button>
       </div>
       <input type="color" class="colorIn" id="txtColor" value="#ffffff">
-      <button class="cx" id="txtCx">取消</button>
-      <button class="ok" id="txtOk">放置文字</button>
+      <button class="cx" id="txtCx" data-t="取消">取消</button>
+      <button class="ok" id="txtOk" data-t="放置文字">放置文字</button>
     </div>
   </div>
 </div>
 <div class="frames-bar" id="framesBar">
-  <button class="playbtn" id="playBtn" title="播放">▶</button>
+  <button class="playbtn" id="playBtn" title="播放" data-t-title="播放">▶</button>
   <div class="frames-scroll" id="framesScroll"></div>
-  <div class="speedctl" id="speedCtl" title="播放速度">
+  <div class="speedctl" id="speedCtl" title="播放速度" data-t-title="播放速度">
     <button class="spd" data-s="0.25">¼×</button>
     <button class="spd" data-s="0.5">½×</button>
     <button class="spd on" data-s="1">1×</button>
@@ -750,46 +905,51 @@ setTimeout(function () {
   <div class="fpsinfo" id="fpsInfo"></div>
 </div>
 <div class="tools">
-  <button class="tool on" data-t="view" title="查看/移动">
+  <button class="tool on" data-t="view" title="查看/移动" data-t-title="查看/移动">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
-    <span>查看</span>
+    <span data-t="查看">查看</span>
   </button>
-  <button class="tool" data-t="crop" title="裁剪">
+  <button class="tool" data-t="crop" title="裁剪" data-t-title="裁剪">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
-    <span>裁剪</span>
+    <span data-t="裁剪">裁剪</span>
   </button>
-  <button class="tool" data-t="brush" title="画笔">
+  <button class="tool" data-t="brush" title="画笔" data-t-title="画笔">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-    <span>画笔</span>
+    <span data-t="画笔">画笔</span>
   </button>
-  <button class="tool" data-t="text" title="文字">
+  <button class="tool" data-t="text" title="文字" data-t-title="文字">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
-    <span>文字</span>
+    <span data-t="文字">文字</span>
   </button>
-  <button class="tool" data-t="filter" title="滤镜">
+  <button class="tool" data-t="filter" title="滤镜" data-t-title="滤镜">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-    <span>滤镜</span>
+    <span data-t="滤镜">滤镜</span>
   </button>
-  <button class="tool" data-t="transform" title="旋转/翻转">
+  <button class="tool" data-t="transform" title="旋转/翻转" data-t-title="旋转/翻转">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-    <span>变换</span>
+    <span data-t="变换">变换</span>
   </button>
-  <button class="tool" data-t="overlay" title="贴图图层">
+  <button class="tool" data-t="overlay" title="贴图图层" data-t-title="贴图图层">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="13" height="13" rx="1"/><path d="M8 21h11a2 2 0 0 0 2-2V8"/><path d="M21 16H8a2 2 0 0 1-2-2V3"/></svg>
-    <span>贴图</span>
+    <span data-t="贴图">贴图</span>
+  </button>
+  <button class="tool" data-t="resize" title="调整尺寸" data-t-title="调整尺寸">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7.5 7.5"/><path d="M3 21l7.5-7.5"/></svg>
+    <span data-t="尺寸">尺寸</span>
   </button>
 </div>
 <div class="params">
   <div class="prow on" data-p="view">
-    <span class="plabel">💡 双指或滚动条平移画面，＋/− 缩放视图（不影响图片像素）</span>
+    <span class="plabel" data-t="💡 双指或滚动条平移画面，＋/− 缩放视图（不影响图片像素）">💡 双指或滚动条平移画面，＋/− 缩放视图（不影响图片像素）</span>
+    <span class="pval" id="imgInfo" style="margin-left:auto;min-width:0;"></span>
   </div>
   <div class="prow" data-p="crop">
-    <span class="plabel">拖动边角调整，框内拖动移动</span>
-    <button class="pbtn go" id="cropApply">✓ 应用裁剪</button>
-    <button class="pbtn" id="cropFull">全图</button>
+    <span class="plabel" data-t="拖动边角调整，框内拖动移动">拖动边角调整，框内拖动移动</span>
+    <button class="pbtn go" id="cropApply" data-t="✓ 应用裁剪">✓ 应用裁剪</button>
+    <button class="pbtn" id="cropFull" data-t="全图">全图</button>
   </div>
   <div class="prow" data-p="brush">
-    <span class="plabel">颜色</span>
+    <span class="plabel" data-t="颜色">颜色</span>
     <button class="swatch on" data-c="#ff3b30" style="background:#ff3b30"></button>
     <button class="swatch" data-c="#ff9500" style="background:#ff9500"></button>
     <button class="swatch" data-c="#ffe100" style="background:#ffe100"></button>
@@ -798,52 +958,62 @@ setTimeout(function () {
     <button class="swatch" data-c="#bf5af2" style="background:#bf5af2"></button>
     <button class="swatch" data-c="#ffffff" style="background:#ffffff"></button>
     <button class="swatch" data-c="#1c1c1e" style="background:#1c1c1e"></button>
-    <input type="color" class="colorIn" id="brushColor" value="#ff3b30" title="自定义颜色">
-    <span class="plabel">粗细</span>
+    <input type="color" class="colorIn" id="brushColor" value="#ff3b30" title="自定义颜色" data-t-title="自定义颜色">
+    <span class="plabel" data-t="粗细">粗细</span>
     <input type="range" id="brushSize" min="1" max="60" value="6">
     <span class="pval" id="brushSizeV">6</span>
   </div>
   <div class="prow" data-p="text">
-    <span class="plabel">👆 点击图片位置放置文字</span>
-    <span class="plabel">颜色</span>
+    <span class="plabel" data-t="👆 点击图片位置放置文字">👆 点击图片位置放置文字</span>
+    <span class="plabel" data-t="颜色">颜色</span>
     <input type="color" class="colorIn" id="tColor" value="#ffffff">
-    <button class="pbtn warn" id="tStroke">描边:关</button>
+    <button class="pbtn warn" id="tStroke" data-t="描边:关">描边:关</button>
   </div>
   <div class="prow" data-p="filter">
-    <span class="plabel">亮度</span><input type="range" id="fBri" min="40" max="180" value="100"><span class="pval" id="fBriV">100</span>
-    <span class="plabel">对比</span><input type="range" id="fCon" min="40" max="180" value="100"><span class="pval" id="fConV">100</span>
-    <span class="plabel">饱和</span><input type="range" id="fSat" min="0" max="220" value="100"><span class="pval" id="fSatV">100</span>
-    <span class="plabel">模糊</span><input type="range" id="fBlur" min="0" max="12" value="0"><span class="pval" id="fBlurV">0</span>
-    <button class="pbtn go" id="fApply">✓ 应用滤镜</button>
-    <button class="pbtn" id="fReset">重置</button>
+    <span class="plabel" data-t="亮度">亮度</span><input type="range" id="fBri" min="40" max="180" value="100"><span class="pval" id="fBriV">100</span>
+    <span class="plabel" data-t="对比">对比</span><input type="range" id="fCon" min="40" max="180" value="100"><span class="pval" id="fConV">100</span>
+    <span class="plabel" data-t="饱和">饱和</span><input type="range" id="fSat" min="0" max="220" value="100"><span class="pval" id="fSatV">100</span>
+    <span class="plabel" data-t="模糊">模糊</span><input type="range" id="fBlur" min="0" max="12" value="0"><span class="pval" id="fBlurV">0</span>
+    <button class="pbtn go" id="fApply" data-t="✓ 应用滤镜">✓ 应用滤镜</button>
+    <button class="pbtn" id="fReset" data-t="重置">重置</button>
   </div>
   <div class="prow" data-p="transform">
-    <button class="pbtn" id="rotL">↺ 左转90°</button>
-    <button class="pbtn" id="rotR">↻ 右转90°</button>
-    <button class="pbtn" id="flipH">⇋ 水平翻转</button>
-    <button class="pbtn" id="flipV">⇵ 垂直翻转</button>
+    <button class="pbtn" id="rotL" data-t="↺ 左转90°">↺ 左转90°</button>
+    <button class="pbtn" id="rotR" data-t="↻ 右转90°">↻ 右转90°</button>
+    <button class="pbtn" id="flipH" data-t="⇋ 水平翻转">⇋ 水平翻转</button>
+    <button class="pbtn" id="flipV" data-t="⇵ 垂直翻转">⇵ 垂直翻转</button>
     <div class="rotctl">
-      <span class="plabel">自由旋转</span>
+      <span class="plabel" data-t="自由旋转">自由旋转</span>
       <input type="range" id="rotFree" min="-180" max="180" value="0" step="1">
       <span class="pval" id="rotFreeV">0°</span>
-      <button class="pbtn go" id="rotApply" title="应用旋转到图片">✓ 应用</button>
+      <button class="pbtn go" id="rotApply" title="应用旋转到图片" data-t-title="应用旋转到图片" data-t="✓ 应用">✓ 应用</button>
     </div>
   </div>
   <div class="prow" data-p="overlay">
-    <button class="pbtn go" id="ovAdd">＋ 导入贴图</button>
-    <button class="pbtn" id="ovMerge" disabled>✓ 合并到图片</button>
-    <button class="pbtn" id="ovClear" disabled>清空</button>
+    <button class="pbtn go" id="ovAdd" data-t="＋ 导入贴图">＋ 导入贴图</button>
+    <button class="pbtn" id="ovMerge" disabled data-t="✓ 合并到图片">✓ 合并到图片</button>
+    <button class="pbtn" id="ovClear" disabled data-t="清空">清空</button>
     <div class="ovlist" id="ovList"></div>
     <div class="ovctl" id="ovCtl" style="display:none">
-      <span class="plabel">透明度</span>
+      <span class="plabel" data-t="透明度">透明度</span>
       <input type="range" id="ovAlpha" min="0" max="100" value="100">
       <span class="pval" id="ovAlphaV">100%</span>
-      <span class="plabel">缩放</span>
+      <span class="plabel" data-t="缩放">缩放</span>
       <input type="range" id="ovScale" min="5" max="300" value="100">
       <span class="pval" id="ovScaleV">100%</span>
-      <button class="pbtn" id="ovDel">🗑 删除此层</button>
+      <button class="pbtn" id="ovDel" data-t="🗑 删除此层">🗑 删除此层</button>
     </div>
-    <span class="plabel" id="ovHint">导入后拖动贴图调整位置，点缩略图选中图层</span>
+    <span class="plabel" id="ovHint" data-t="导入后拖动贴图调整位置，点缩略图选中图层">导入后拖动贴图调整位置，点缩略图选中图层</span>
+  </div>
+  <div class="prow" data-p="resize">
+    <span class="plabel" data-t="宽">宽</span>
+    <input type="number" class="numin" id="rsW" min="1" max="8192" step="1" value="0">
+    <span class="plabel" data-t="高">高</span>
+    <input type="number" class="numin" id="rsH" min="1" max="8192" step="1" value="0">
+    <label class="rs-lock"><input type="checkbox" id="rsLock" checked><span data-t="锁定比例">锁定比例</span></label>
+    <button class="pbtn" id="rsHalf" data-t="缩小50%">缩小50%</button>
+    <button class="pbtn" id="rsDouble" data-t="放大2×">放大2×</button>
+    <button class="pbtn go" id="rsApply" data-t="✓ 应用尺寸">✓ 应用尺寸</button>
   </div>
 </div>
 <div id="toast"></div>
@@ -852,6 +1022,5 @@ setTimeout(function () {
 <script src="js/img-tool.js"></script>
 </template>
 
-<script src="js/app.js"></script>
 </body>
 </html>

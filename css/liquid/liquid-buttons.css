@@ -1,0 +1,194 @@
+/* ============================================================
+   液态玻璃模式（Liquid Glass · iOS 26 风格）· 按钮：完整玻璃 / 轻量玻璃 / 语义色
+   算法来源：liquid-glass 中文版（archisvaze/liquid-glass，MIT）
+   仅在 body.ui-liquid 时生效；默认「原样」零变化。
+   原理：::after = CSS backdrop-filter blur 磨砂（z-index:-1，
+        全浏览器保证铺满整个元素）；::before = 着色 / 内阴影 /
+        顶部高光（z-index:1）。不依赖 SVG 滤镜，无兼容性问题。
+   ============================================================ */
+
+/* ============================================================
+   按钮：通用液态玻璃
+   （!important 用于压过样式版本/主题的既有实底配色）
+   ============================================================ */
+body.ui-liquid.ui-liquid button {
+    position: relative;
+    isolation: isolate;
+    border-radius: 14px !important;
+    background: rgba(10, 14, 22, .38) !important;
+    border: 1px solid rgba(255, 255, 255, .18) !important;
+    color: #eef2f9 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .28) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+    /* 悬停/按压/切换模式时的颜色过渡（合成友好，无重排） */
+    transition: background-color .25s ease, border-color .25s ease, color .25s ease, transform .12s ease;
+}
+/* 按压反馈：轻微缩回（fab 自带旋转动画、warn-btn 支持拖拽，各自排除） */
+body.ui-liquid.ui-liquid button:active { transform: scale(.97); }
+/* 危险确认钮（内嵌删除确认弹窗）：红色必须在液态下也保持警示色 */
+body.ui-liquid.ui-liquid .btn-confirm.ui-dialog-danger {
+    background: linear-gradient(135deg, #e53935, #c62828) !important;
+    border-color: rgba(255, 120, 110, .45) !important;
+    color: #fff !important;
+}
+/* 退出按钮（工具栏叉图标）：同样保持红色警示 */
+body.ui-liquid.ui-liquid .toolbar .btn-exit {
+    background: linear-gradient(135deg, #e53935, #c62828) !important;
+    border-color: rgba(255, 120, 110, .45) !important;
+    color: #fff !important;
+}
+body.ui-liquid.ui-liquid .fab:active { transform: scale(.96) rotate(90deg); }
+body.ui-liquid.ui-liquid .warn-btn:active { transform: none; }
+/* 磨砂玻璃层（元素背后的画面）
+   按钮统一用 CSS 原生 blur：在所有浏览器都保证铺满整个按钮
+   （SVG 滤镜的百分比尺寸贴图在部分内核只渲染出一小块，
+   导致模糊只盖住按钮一角）。CSS blur 同时只需 1 道 pass，
+   比原 7 原语滤镜链更快，小按钮上观感一致。 */
+body.ui-liquid.ui-liquid button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: blur(10px) saturate(1.5);
+    -webkit-backdrop-filter: blur(10px) saturate(1.5);
+}
+/* 着色 / 内阴影 / 顶部高光（含上下 1px 边缘锐光，玻璃轮廓更清晰） */
+body.ui-liquid.ui-liquid button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .02) 45%, rgba(255, 255, 255, .09));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28),
+                inset 0 0 10px -3px rgba(255, 255, 255, .32),
+                inset 0 -1px 0 rgba(255, 255, 255, .05);
+}
+body.ui-liquid.ui-liquid button:hover::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .05) 45%, rgba(255, 255, 255, .14));
+}
+body.ui-liquid.ui-liquid button:active::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .07) 45%, rgba(255, 255, 255, .18));
+}
+/* 语言面板的 ✓ 角标让位给玻璃层；用着色保留选中态 */
+body.ui-liquid.ui-liquid .fl-opt.picked::after { content: ''; }
+body.ui-liquid.ui-liquid .fl-opt.picked {
+    background: rgba(56, 189, 248, .18) !important;
+    border-color: rgba(56, 189, 248, .6) !important;
+    color: #7dd3fc !important;
+}
+body.ui-liquid.ui-liquid.light-theme .fl-opt.picked {
+    background: rgba(13, 156, 138, .16) !important;
+    border-color: rgba(13, 156, 138, .55) !important;
+    color: #0d8f80 !important;
+}
+
+/* ============================================================
+   小图标按钮：轻量玻璃（性能优化）
+   28px 左右的小圆钮上折射几乎不可见，省掉 backdrop-filter
+   的背景采样——文件树/卡片操作等滚动列表保持满帧流畅。
+   保留 ::before 高光与边缘锐光，观感与完整玻璃一致。
+   ============================================================ */
+body.ui-liquid.ui-liquid .proj-btn,
+body.ui-liquid.ui-liquid .file-item .actions button,
+body.ui-liquid.ui-liquid .file-tree-actions button,
+body.ui-liquid.ui-liquid .repo-close,
+body.ui-liquid.ui-liquid .repo-add-btn,
+body.ui-liquid.ui-liquid .model-viewer-close,
+body.ui-liquid.ui-liquid .preview-area-header .close-preview,
+body.ui-liquid.ui-liquid .btn-refresh-round,
+body.ui-liquid.ui-liquid .src-toggle-list {
+    background: rgba(255, 255, 255, .14) !important;
+    border-color: rgba(255, 255, 255, .3) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .22) !important;
+}
+body.ui-liquid.ui-liquid .proj-btn::after,
+body.ui-liquid.ui-liquid .file-item .actions button::after,
+body.ui-liquid.ui-liquid .file-tree-actions button::after,
+body.ui-liquid.ui-liquid .repo-close::after,
+body.ui-liquid.ui-liquid .repo-add-btn::after,
+body.ui-liquid.ui-liquid .model-viewer-close::after,
+body.ui-liquid.ui-liquid .preview-area-header .close-preview::after,
+body.ui-liquid.ui-liquid .btn-refresh-round::after,
+body.ui-liquid.ui-liquid .src-toggle-list::after {
+    content: none;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+/* 文本按钮（如「← 返回」）：保持无底色设计，不做玻璃 */
+body.ui-liquid.ui-liquid .btn-back-folder {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: #4ec9b0 !important;
+}
+body.ui-liquid.ui-liquid .btn-back-folder::after { content: none; }
+body.ui-liquid.ui-liquid.light-theme .btn-back-folder {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: #0e639c !important;
+    text-shadow: none !important;
+}
+
+/* ---------- 语义按钮：保留色相，改半透明玻璃 ---------- */
+body.ui-liquid.ui-liquid .toolbar .btn-run { background: rgba(12, 44, 38, .55) !important; border-color: rgba(78, 201, 176, .45) !important; color: #9ff0e2 !important; }
+body.ui-liquid.ui-liquid .toolbar .btn-stop { background: rgba(52, 14, 12, .55) !important; border-color: rgba(244, 67, 54, .5) !important; color: #ffb3ad !important; }
+body.ui-liquid.ui-liquid .toolbar .btn-pack { background: rgba(30, 22, 52, .55) !important; border-color: rgba(150, 110, 220, .45) !important; color: #cdb6f7 !important; }
+body.ui-liquid.ui-liquid .toolbar .btn-icon { background: rgba(52, 38, 12, .55) !important; border-color: rgba(245, 166, 35, .45) !important; color: #ffd58a !important; }
+body.ui-liquid.ui-liquid .fab { background: rgba(10, 38, 62, .55) !important; border-color: rgba(125, 211, 252, .4) !important; color: #dff1ff !important; }
+body.ui-liquid.ui-liquid .warn-btn { background: rgba(10, 42, 36, .55) !important; border-color: rgba(255, 255, 255, .3) !important; }
+body.ui-liquid.ui-liquid .warn-btn.has-errors { background: rgba(56, 12, 10, .55) !important; border-color: rgba(255, 180, 180, .45) !important; }
+body.ui-liquid.ui-liquid .theme-btn { background: rgba(10, 14, 22, .38) !important; }
+body.ui-liquid.ui-liquid .settings-opt.active { background: rgba(8, 46, 42, .55) !important; border-color: rgba(45, 212, 191, .55) !important; color: #7ff0e4 !important; }
+body.ui-liquid.ui-liquid .tools-menu-item { background: rgba(10, 38, 62, .6) !important; border-color: rgba(125, 211, 252, .28) !important; }
+body.ui-liquid.ui-liquid .zip-menu-item { background: rgba(10, 38, 62, .6) !important; border-color: rgba(125, 211, 252, .28) !important; }
+/* 「模型查看」项：液态下占位缩至 18px（与其他项一致、菜单变短），
+   同时用 CSS transform 把立方体线框放大充满 viewBox——
+   小占位画出大图形，视觉大小与原 28px 相当，图标不变小 */
+body.ui-liquid.ui-liquid #mvIconSvg {
+    width: 18px !important;
+    height: 18px !important;
+    margin-left: 0 !important;
+    vertical-align: middle !important;
+}
+body.ui-liquid.ui-liquid #mvIconSvg g {
+    /* 立方体原始坐标 x6→18 / y6→19.45，放大 1.7 倍并居中回位，
+       绘制范围 1.1→23.9，正好铺满 24×24 viewBox */
+    transform: translate(-8.5px, -9.1px) scale(1.7);
+}
+body.ui-liquid.ui-liquid #mvIconSpan { margin-left: 0 !important; }
+/* 工具栏搜索框：玻璃化配色（不加背景采样，保持轻量） */
+body.ui-liquid.ui-liquid .search-row input,
+body.ui-liquid.ui-liquid .toolbar input[type="text"],
+body.ui-liquid.ui-liquid .toolbar input[type="search"] {
+    background: rgba(10, 14, 22, .38) !important;
+    border-color: rgba(255, 255, 255, .18) !important;
+    color: #eef2f9 !important;
+}
+body.ui-liquid.ui-liquid.light-theme .search-row input,
+body.ui-liquid.ui-liquid.light-theme .toolbar input[type="text"],
+body.ui-liquid.ui-liquid.light-theme .toolbar input[type="search"] {
+    background: rgba(255, 255, 255, .55) !important;
+    border-color: rgba(255, 255, 255, .8) !important;
+    color: #22303f !important;
+}
+
+/* ---------- 圆形按钮：保持全圆角 ---------- */
+body.ui-liquid.ui-liquid .theme-btn,
+body.ui-liquid.ui-liquid .fab,
+body.ui-liquid.ui-liquid .warn-btn,
+body.ui-liquid.ui-liquid .repo-add-btn,
+body.ui-liquid.ui-liquid .repo-close,
+body.ui-liquid.ui-liquid .model-viewer-close,
+body.ui-liquid.ui-liquid .preview-area-header .close-preview,
+body.ui-liquid.ui-liquid .btn-refresh-round,
+body.ui-liquid.ui-liquid .proj-btn,
+body.ui-liquid.ui-liquid .file-item .actions button,
+body.ui-liquid.ui-liquid .src-toggle-list { border-radius: 999px !important; }
+/* 浮动按钮保持 fixed 定位（theme/warn/fab 为浮动词头，不随文档流） */
+body.ui-liquid.ui-liquid .theme-btn,
+body.ui-liquid.ui-liquid .warn-btn,
+body.ui-liquid.ui-liquid .fab { position: fixed !important; }

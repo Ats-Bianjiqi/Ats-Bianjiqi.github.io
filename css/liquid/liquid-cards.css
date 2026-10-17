@@ -1,0 +1,76 @@
+/* ============================================================
+   液态玻璃模式（Liquid Glass · iOS 26 风格）· 项目卡片与文件标签
+   算法来源：liquid-glass 中文版（archisvaze/liquid-glass，MIT）
+   仅在 body.ui-liquid 时生效；默认「原样」零变化。
+   原理：::after = CSS backdrop-filter blur 磨砂（z-index:-1，
+        全浏览器保证铺满整个元素）；::before = 着色 / 内阴影 /
+        顶部高光（z-index:1）。不依赖 SVG 滤镜，无兼容性问题。
+   ============================================================ */
+
+/* ============================================================
+   项目卡片 / 文件标签：完整玻璃（大号折射）
+   ============================================================ */
+body.ui-liquid.ui-liquid .project-card {
+    border-radius: 16px !important;   /* 液态只能圆角（压过方角模式的 0 圆角） */
+    background: rgba(10, 14, 22, .38) !important;
+    border: 1px solid rgba(255, 255, 255, .16) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .3) !important;
+    color: #dbe4f0 !important;
+}
+/* 项目卡片：CSS 原生 blur 保证铺满整张卡片（部分内核对 SVG
+   滤镜内百分比尺寸贴图只渲染一小块，导致模糊不完整，故弃用） */
+body.ui-liquid.ui-liquid .project-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: blur(12px) saturate(1.5);
+    -webkit-backdrop-filter: blur(12px) saturate(1.5);
+}
+body.ui-liquid.ui-liquid .project-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .02) 45%, rgba(255, 255, 255, .08));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25),
+                inset 0 0 14px -4px rgba(255, 255, 255, .24);
+}
+body.ui-liquid.ui-liquid .project-card:hover::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .04) 45%, rgba(255, 255, 255, .13));
+}
+body.ui-liquid.ui-liquid .file-tab {
+    position: relative;
+    isolation: isolate;
+    border-radius: 10px 10px 0 0 !important;   /* 液态只能圆角（顶部圆角压过方角模式） */
+    background: rgba(10, 14, 22, .38) !important;
+    border: 1px solid rgba(255, 255, 255, .14) !important;
+    color: #dbe4f0 !important;
+}
+body.ui-liquid.ui-liquid .file-tab.active {
+    background: rgba(10, 38, 62, .6) !important;
+    border-color: rgba(125, 211, 252, .4) !important;
+    color: #fff !important;
+}
+/* 文件标签：与按钮一致，CSS 原生 blur 保证铺满整个标签 */
+body.ui-liquid.ui-liquid .file-tab::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    backdrop-filter: blur(10px) saturate(1.5);
+    -webkit-backdrop-filter: blur(10px) saturate(1.5);
+}
+body.ui-liquid.ui-liquid .file-tab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .02) 45%, rgba(255, 255, 255, .08));
+}

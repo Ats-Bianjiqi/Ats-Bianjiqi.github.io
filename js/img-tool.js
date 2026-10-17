@@ -1,5 +1,202 @@
 (function(){
   'use strict';
+
+/* ===== 工具 i18n：静态 data-t + 动态 T()，语言继承父页并实时跟随 ===== */
+var LANG = 'zh';
+try { LANG = /en/i.test(parent.document.documentElement.lang || '') ? 'en' : 'zh'; } catch (e) {}
+try { var _lk = localStorage.getItem('ats_editor_lang'); if (_lk === 'en') LANG = 'en'; else if (_lk === 'zh') LANG = 'zh'; } catch (e) {}
+var T = function (s) { if (LANG === 'en') { var d = T.d.en; if (d[s] !== undefined) return d[s]; } return s; };
+T.d = { en: {} };
+function applyToolLang() {
+  var d = T.d.en;
+  var pick = function (k) { return (LANG === 'en') ? d[k] : k; };  /* 键即中文原文 */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (el) {
+    var v = pick(el.getAttribute('data-t')); if (v !== undefined) el.textContent = v;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-t-title]'), function (el) {
+    var v = pick(el.getAttribute('data-t-title')); if (v !== undefined) el.title = v;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-t-ph]'), function (el) {
+    var v = pick(el.getAttribute('data-t-ph')); if (v !== undefined) el.placeholder = v;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-t-html]'), function (el) {
+    var v = pick(el.getAttribute('data-t-html')); if (v !== undefined) el.innerHTML = v;
+  });
+}
+window.addEventListener('message', function (e) {
+  var d = e.data;
+  if (d && d.__atsLang) {
+    LANG = d.__atsLang === 'en' ? 'en' : 'zh';
+    applyToolLang();
+    if (typeof onToolLangChange === 'function') { try { onToolLangChange(); } catch (err) {} }
+  }
+});
+
+T.d.en = {
+ "上传": "Upload",
+ "撤销": "Undo",
+ "适": "Fit",
+ "还原": "Reset",
+ "导出": "Export",
+ "存仓库": "To Repo",
+ "点击上传图片 / 视频 / 动图": "Click to upload image / video / GIF",
+ "支持 JPG / PNG / WebP / GIF动图 / MP4·WebM视频": "JPG / PNG / WebP / GIF / MP4·WebM supported",
+ "小": "S",
+ "中": "M",
+ "大": "L",
+ "取消": "Cancel",
+ "确定": "OK",
+ "放置文字": "Place Text",
+ "查看": "View",
+ "裁剪": "Crop",
+ "画笔": "Brush",
+ "文字": "Text",
+ "滤镜": "Filter",
+ "变换": "Transform",
+ "贴图": "Sticker",
+ "💡 双指或滚动条平移画面，＋/− 缩放视图（不影响图片像素）": "💡 Pan with scroll, zoom with ＋/− (view only, pixels untouched)",
+ "拖动边角调整，框内拖动移动": "Drag corners to resize, drag inside to move",
+ "✓ 应用裁剪": "✓ Apply Crop",
+ "全图": "Full",
+ "颜色": "Color",
+ "粗细": "Size",
+ "👆 点击图片位置放置文字": "👆 Click on image to place text",
+ "描边:关": "Stroke: off",
+ "亮度": "Brightness",
+ "对比": "Contrast",
+ "饱和": "Saturation",
+ "模糊": "Blur",
+ "✓ 应用滤镜": "✓ Apply",
+ "重置": "Reset",
+ "↺ 左转90°": "↺ 90° Left",
+ "↻ 右转90°": "↻ 90° Right",
+ "⇋ 水平翻转": "⇋ Flip H",
+ "⇵ 垂直翻转": "⇵ Flip V",
+ "自由旋转": "Free Rotate",
+ "✓ 应用": "✓ Apply",
+ "＋ 导入贴图": "＋ Add Sticker",
+ "✓ 合并到图片": "✓ Merge",
+ "清空": "Clear",
+ "透明度": "Opacity",
+ "缩放": "Scale",
+ "🗑 删除此层": "🗑 Delete Layer",
+ "导入后拖动贴图调整位置，点缩略图选中图层": "Drag sticker to move, click thumbnail to select layer",
+ "请选择图片 / 动图 / 视频文件": "Please choose an image / GIF / video",
+ "当前浏览器不支持动图解码，仅编辑第一帧": "GIF decoding unsupported, editing first frame only",
+ "正在解析动图…": "Parsing GIF…",
+ "正在解析视频…": "Extracting video frames…",
+ "视频加载失败": "Video load failed",
+ "无法读取视频时长": "Cannot read video duration",
+ "已加载 ": "Loaded ",
+ "已导入 ": "Imported ",
+ " 张贴图，拖动调整位置": " stickers, drag to position",
+ "已合并 ": "Merged ",
+ " 个贴图层": " sticker layer(s)",
+ "已清空全部贴图": "All stickers cleared",
+ "已旋转 ": "Rotated ",
+ "°": "°",
+ "先拖动滑条预览角度": "Drag the slider first",
+ "已左转 90°": "Rotated 90° left",
+ "已右转 90°": "Rotated 90° right",
+ "已水平翻转": "Flipped horizontally",
+ "已垂直翻转": "Flipped vertically",
+ "滤镜已应用": "Filter applied",
+ "滤镜已应用到全部帧": "Filter applied to all frames",
+ "滤镜无调整": "No filter changes",
+ "请先上传图片": "Upload an image first",
+ "已加载": "Loaded",
+ "已还原原图": "Restored original",
+ "确定还原原图？当前修改将丢失": "Restore original? Current edits will be lost",
+ "没有可撤销的操作": "Nothing to undo",
+ "已导出": "Exported",
+ "已存入仓库": "Saved to repo",
+ "导出中…": "Exporting…",
+ "帧": "frames",
+ "粘贴中 ": "Pasting ",
+ "上传中 ": "Uploading ",
+ "已上传": "Uploaded",
+ "上传失败": "Upload failed",
+ "文件过大": "File too large",
+ "不支持此格式": "Format not supported",
+ "读取失败": "Read failed",
+ "图片": "Image",
+ "动图": "GIF",
+ "视频": "Video",
+ "无损图片": "lossless",
+ "体积更小": "smaller",
+ "高效压缩": "efficient",
+ " 以保证流畅": " for smooth playback",
+ " 帧": " frame(s)",
+ " 帧<br>": " frame(s)<br>",
+ "GIF 编码器加载失败（需要网络）": "GIF encoder load failed (network required)",
+ "GIF 编码失败": "GIF encode failed",
+ "✓ 已存入仓库：": "✓ Saved to repo: ",
+ "关": "off",
+ "删除此层": "Delete layer",
+ "动图已导入：": "GIF imported: ",
+ "动图解码失败，按静态图处理": "GIF decode failed, treated as static image",
+ "图片加载失败": "Image load failed",
+ "图片较大，已缩放至 ": "Image too large, resized to ",
+ "存仓库失败": "Save to repo failed",
+ "存仓库失败：": "Save to repo failed: ",
+ "存入仓库为": "Saved to repo as",
+ "导出为": "Exported as",
+ "导出失败": "Export failed",
+ "尺寸过大，最大支持 8192×8192": "Too large, max 8192×8192",
+ "已导出 ": "Exported ",
+ "已撤销": "Undone",
+ "已放置文字": "Text placed",
+ "已裁剪 ": "Cropped ",
+ "已裁剪全部帧 ": "Cropped all frames ",
+ "已调整尺寸为 ": "Resized to ",
+ "已还原": "Restored",
+ "开": "on",
+ "当前浏览器不支持视频录制": "Video recording unsupported",
+ "快照失败": "Snapshot failed",
+ "抽帧失败": "Frame extraction failed",
+ "描边:": "Stroke: ",
+ "撤销失败": "Undo failed",
+ "显示此层": "Show layer",
+ "正在存入仓库…": "Saving to repo…",
+ "正在抽取视频帧…": "Extracting video frames…",
+ "正在生成视频…": "Generating video…",
+ "正在编码 GIF…": "Encoding GIF…",
+ "正在编码 GIF… ": "Encoding GIF… ",
+ "确定还原为原图？所有编辑将丢失": "Restore original? All edits will be lost",
+ "第 ": "Frame ",
+ "裁剪区域太小": "Crop area too small",
+ "视频已导入：": "Video imported: ",
+ "视频录制初始化失败": "Video recording init failed",
+ "请先上传底图": "Upload an image first",
+ "请输入文字": "Enter some text",
+ "请输入有效的宽度和高度": "Enter valid width & height",
+ "适应屏幕": "Fit screen",
+ "隐藏此层": "Hide layer",
+ "（点击选中）": "(click to select)",
+ "尺寸": "Size",
+ "宽": "W",
+ "高": "H",
+ "锁定比例": "Lock ratio",
+ "缩小50%": "50%",
+ "放大2×": "2×",
+ "✓ 应用尺寸": "✓ Apply Size",
+ "上传图片": "Upload image",
+ "缩小": "Zoom out",
+ "放大": "Zoom in",
+ "还原原图": "Restore original",
+ "存入文件仓库": "Save to repository",
+ "播放": "Play",
+ "播放速度": "Playback speed",
+ "查看/移动": "View / Move",
+ "旋转/翻转": "Rotate / Flip",
+ "贴图图层": "Sticker layer",
+ "调整尺寸": "Resize",
+ "自定义颜色": "Custom color",
+ "应用旋转到图片": "Apply rotation to image",
+ "输入文字…": "Type text…"
+};
+applyToolLang();
+
   /* ===== 基础 ===== */
   var cv = document.getElementById('icv'), ctx = cv.getContext('2d');
   var wrap = document.getElementById('imgWrap'), stage = document.getElementById('stage');
@@ -45,6 +242,7 @@
     $('zPct').textContent = Math.round(s * 100) + '%';
     layoutCrop();
     if (typeof layoutSelBox === 'function') layoutSelBox();
+    updateImgInfo();
   }
   function calcFit(){
     var sw = stage.clientWidth - 24, sh = stage.clientHeight - 24;
@@ -85,13 +283,13 @@
   function tryAnimated(file, silent){
     origFile = file;
     if (!('ImageDecoder' in window)) {
-      if (file.type === 'image/gif') toast('当前浏览器不支持动图解码，仅编辑第一帧', 2600);
+      if (file.type === 'image/gif') toast(T('当前浏览器不支持动图解码，仅编辑第一帧'), 2600);
       var rd0 = new FileReader();
       rd0.onload = function(){ loadImage(rd0.result, !silent); };
       rd0.readAsDataURL(file);
       return;
     }
-    toast('正在解析动图…', 1500);
+    toast(T('正在解析动图…'), 1500);
     file.arrayBuffer().then(function(buf){
       var dec = new ImageDecoder({ data: buf, type: file.type });
       return dec.tracks.ready.then(function(){
@@ -121,7 +319,7 @@
       });
     }).catch(function(err){
       if (String(err && err.message) === 'single') { /* 静态 webp */ }
-      else toast('动图解码失败，按静态图处理', 2200);
+      else toast(T('动图解码失败，按静态图处理'), 2200);
       var rd = new FileReader();
       rd.onload = function(){ loadImage(rd.result, !silent); };
       rd.readAsDataURL(file);
@@ -130,18 +328,18 @@
   /* 视频抽帧 */
   function loadVideo(file, silent){
     origFile = file;
-    toast('正在抽取视频帧…', 4000);
+    toast(T('正在抽取视频帧…'), 4000);
     var url = URL.createObjectURL(file);
     var v = document.createElement('video');
     v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
     var fail = function(msg){
       URL.revokeObjectURL(url);
-      toast(msg || '视频加载失败', 2400);
+      toast(msg || T('视频加载失败'), 2400);
     };
     v.onerror = function(){ fail(); };
     v.onloadedmetadata = function(){
       var dur = v.duration;
-      if (!dur || !isFinite(dur)) { fail('无法读取视频时长'); return; }
+      if (!dur || !isFinite(dur)) { fail(T('无法读取视频时长')); return; }
       var vw = v.videoWidth || 640, vh = v.videoHeight || 360, MAXF = 1280;
       var k = Math.min(1, MAXF / Math.max(vw, vh));
       var w = Math.max(2, Math.round(vw * k)), h = Math.max(2, Math.round(vh * k));
@@ -170,7 +368,7 @@
       chain.then(function(){
         URL.revokeObjectURL(url);
         initFrames(cvs, Math.round(1000 / targetFps), 'video', !silent);
-      }).catch(function(){ fail('抽帧失败'); });
+      }).catch(function(){ fail(T('抽帧失败')); });
     };
   }
   /* 初始化帧编辑模式 */
@@ -190,7 +388,7 @@
     updateBtns();
     buildExpMenu('dl'); buildExpMenu('repo');
     if (tool !== 'view') setTool(tool);
-    if (fresh) toast(kind === 'video' ? '视频已导入：' + frames.length + ' 帧' : '动图已导入：' + frames.length + ' 帧', 2200);
+    if (fresh) toast(kind === 'video' ? T('视频已导入：') + frames.length + T(' 帧') : T('动图已导入：') + frames.length + T(' 帧'), 2200);
   }
   function renderFramesBar(){
     var sc = document.getElementById('framesScroll');
@@ -198,7 +396,7 @@
     frames.forEach(function(f, i){
       var b = document.createElement('button');
       b.className = 'fthumb' + (i === curFrame ? ' on' : '');
-      b.title = '第 ' + (i + 1) + ' 帧';
+      b.title = T('第 ') + (i + 1) + T(' 帧');
       var t = document.createElement('canvas');
       t.width = 60; t.height = Math.max(1, Math.round(60 * f.height / f.width));
       t.getContext('2d').drawImage(f.cv, 0, 0, t.width, t.height);
@@ -208,12 +406,12 @@
       sc.appendChild(b);
     });
     var info = document.getElementById('fpsInfo');
-    info.innerHTML = frames.length + ' 帧<br>' + (1000 / frameDelay).toFixed(0) + ' fps';
+    info.innerHTML = frames.length + T(' 帧<br>') + (1000 / frameDelay).toFixed(0) + ' fps';
   }
   function updateFpsInfo(){
     var info = document.getElementById('fpsInfo');
     if (!info || !frames.length) return;
-    info.innerHTML = frames.length + ' 帧<br>' + (1000 / frameDelay).toFixed(0) + ' fps × ' + (playSpeed < 1 ? String(playSpeed) : playSpeed) + '×';
+    info.innerHTML = frames.length + T(' 帧<br>') + (1000 / frameDelay).toFixed(0) + ' fps × ' + (playSpeed < 1 ? String(playSpeed) : playSpeed) + '×';
   }
   function markThumb(){
     var sc = document.getElementById('framesScroll');
@@ -298,7 +496,7 @@
         var t = document.createElement('canvas'); t.width = Math.round(w*k); t.height = Math.round(h*k);
         t.getContext('2d').drawImage(im, 0, 0, t.width, t.height);
         im = t; w = t.width; h = t.height;
-        toast('图片较大，已缩放至 ' + w + '×' + h + ' 以保证流畅', 2600);
+        toast(T('图片较大，已缩放至 ') + w + '×' + h + T(' 以保证流畅'), 2600);
       }
       cv.width = w; cv.height = h;
       ctx.drawImage(im, 0, 0);
@@ -312,9 +510,9 @@
       updateBtns();
       buildExpMenu('dl'); buildExpMenu('repo');
       if (tool !== 'view') setTool(tool);  /* 刷新裁剪框等 */
-      if (isNew) toast('已加载 ' + w + '×' + h);
+      if (isNew) toast(T('已加载 ') + w + '×' + h);
     };
-    im.onerror = function(){ toast('图片加载失败'); };
+    im.onerror = function(){ toast(T('图片加载失败')); };
     im.src = src;
   }
   function updateBtns(){
@@ -345,12 +543,12 @@
         while (hist.length > mx) hist.shift();
       }
       updateHistBtn();
-    } catch(e){ console.warn('快照失败', e); }
+    } catch(e){ console.warn(T('快照失败'), e); }
   }
   function undo(){
     if (overlays.length) { resetOverlays(); }  /* 撤销时清除未合并贴图层 */
     if (srcKind !== 'image' && ghist.length){ undoGroup(); return; }
-    if (!hist.length) { toast('没有可撤销的操作'); return; }
+    if (!hist.length) { toast(T('没有可撤销的操作')); return; }
     var d = hist.pop();
     var im = new Image();
     im.onload = function(){
@@ -358,12 +556,12 @@
       ctx.drawImage(im, 0, 0);
       if (frames.length && srcKind !== 'image') frames[curFrame].cv.getContext('2d').drawImage(im, 0, 0), syncCvToFrame();
       calcFit(); applyView(); updateHistBtn();
-      toast('已撤销');
+      toast(T('已撤销'));
     };
     im.src = d;
   }
   function undoGroup(){
-    if (!ghist.length) { toast('没有可撤销的操作'); return; }
+    if (!ghist.length) { toast(T('没有可撤销的操作')); return; }
     var g = ghist.pop();
     var done = 0, err = false;
     var imgs = g.urls.map(function(u){
@@ -379,10 +577,10 @@
           ctx.clearRect(0, 0, g.w, g.h);
           ctx.drawImage(frames[Math.min(curFrame, frames.length - 1)].cv, 0, 0);
           cropFull(); calcFit(); applyView(); updateHistBtn(); renderFramesBar();
-          toast('已撤销');
+          toast(T('已撤销'));
         }
       };
-      im.onerror = function(){ err = true; toast('撤销失败'); };
+      im.onerror = function(){ err = true; toast(T('撤销失败')); };
       im.src = u;
       return im;
     });
@@ -391,7 +589,7 @@
   /* ===== 视图缩放 ===== */
   $('zIn').addEventListener('click', function(){ setZoom(zoom * 1.25); });
   $('zOut').addEventListener('click', function(){ setZoom(zoom / 1.25); });
-  $('zFit').addEventListener('click', function(){ calcFit(); zoom = 1; applyView(); toast('适应屏幕'); });
+  $('zFit').addEventListener('click', function(){ calcFit(); zoom = 1; applyView(); toast(T('适应屏幕')); });
   /* ===== 工具切换 ===== */
   var tools = document.querySelectorAll('.tool');
   tools.forEach(function(b){
@@ -406,7 +604,7 @@
     cv.classList.toggle('texting', t === 'text');
     hideTextPop(); hideRing();
     if (t === 'crop'){
-      if (!hasImg) { toast('请先上传图片'); setTool('view'); return; }
+      if (!hasImg) { toast(T('请先上传图片')); setTool('view'); return; }
       zoom = 1; applyView();
       wrap.classList.add('crop');
       if (crop.w > 0 && crop.w <= cv.width && crop.h > 0 && crop.h <= cv.height) {} else cropFull();
@@ -415,6 +613,10 @@
     } else {
       wrap.classList.remove('crop');
       cropBox.style.display = 'none';
+    }
+    if (t === 'resize'){
+      if (!hasImg) { toast(T('请先上传图片')); setTool('view'); return; }
+      rsSyncInputs();
     }
     if (t === 'filter') previewFilter();
     else { cv.style.filter = ''; }
@@ -443,7 +645,7 @@
   function applyCrop(){
     var x = Math.max(0, Math.round(crop.x)), y = Math.max(0, Math.round(crop.y));
     var w = Math.min(cv.width - x, Math.round(crop.w)), h = Math.min(cv.height - y, Math.round(crop.h));
-    if (w < 8 || h < 8) { toast('裁剪区域太小'); return; }
+    if (w < 8 || h < 8) { toast(T('裁剪区域太小')); return; }
     pushHist();
     var cut = function(c){
       var t = document.createElement('canvas'); t.width = w; t.height = h;
@@ -457,12 +659,12 @@
       cv.width = w; cv.height = h;
       ctx.drawImage(frames[curFrame].cv, 0, 0);
       renderFramesBar();
-      toast('已裁剪全部帧 ' + w + ' × ' + h);
+      toast(T('已裁剪全部帧 ') + w + ' × ' + h);
     } else {
       var t = cut(cv);
       cv.width = w; cv.height = h;
       ctx.drawImage(t, 0, 0);
-      toast('已裁剪 ' + w + ' × ' + h);
+      toast(T('已裁剪 ') + w + ' × ' + h);
     }
     cropFull(); calcFit(); applyView();
     setTool('view');
@@ -496,6 +698,69 @@
     layoutCrop();
   });
   window.addEventListener('pointerup', function(){ cdrag = null; });
+  /* ===== 尺寸调整（缩放图片像素，支持动图全帧）===== */
+  var rsRatio = 1;
+  function rsSyncInputs(){
+    if (!hasImg) return;
+    $('rsW').value = cv.width;
+    $('rsH').value = cv.height;
+    rsRatio = cv.height > 0 ? cv.width / cv.height : 1;
+  }
+  function rsSyncFromW(){
+    if (!hasImg || !$('rsLock').checked) return;
+    var w = Math.max(1, Math.round(+$('rsW').value || 0));
+    $('rsH').value = Math.max(1, Math.round(w / rsRatio));
+  }
+  function rsSyncFromH(){
+    if (!hasImg || !$('rsLock').checked) return;
+    var h = Math.max(1, Math.round(+$('rsH').value || 0));
+    $('rsW').value = Math.max(1, Math.round(h * rsRatio));
+  }
+  $('rsW').addEventListener('input', rsSyncFromW);
+  $('rsH').addEventListener('input', rsSyncFromH);
+  function resizeTo(w, h){
+    if (!hasImg){ toast(T('请先上传图片')); setTool('view'); return; }
+    w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h));
+    if (w > 8192 || h > 8192){ toast(T('尺寸过大，最大支持 8192×8192')); return; }
+    pushHist();
+    var t = document.createElement('canvas'); t.width = w; t.height = h;
+    var tc = t.getContext('2d');
+    tc.imageSmoothingEnabled = true;
+    if (srcKind !== 'image' && frames.length){
+      ensureFrameSaved();
+      frames.forEach(function(f){
+        var fc = document.createElement('canvas'); fc.width = w; fc.height = h;
+        fc.getContext('2d').drawImage(f.cv, 0, 0, w, h);
+        f.cv = fc;
+      });
+      cv.width = w; cv.height = h;
+      ctx.drawImage(frames[curFrame].cv, 0, 0);
+    } else {
+      tc.drawImage(cv, 0, 0, w, h);
+      cv.width = w; cv.height = h;
+      ctx.drawImage(t, 0, 0);
+    }
+    cropFull(); calcFit(); applyView();
+    toast(T('已调整尺寸为 ') + w + '×' + h);
+  }
+  $('rsApply').addEventListener('click', function(){
+    var w = Math.round(+$('rsW').value || 0), h = Math.round(+$('rsH').value || 0);
+    if (!w || !h){ toast(T('请输入有效的宽度和高度')); return; }
+    resizeTo(w, h);
+  });
+  $('rsHalf').addEventListener('click', function(){
+    if (!hasImg) return;
+    resizeTo(Math.max(1, Math.round(cv.width / 2)), Math.max(1, Math.round(cv.height / 2)));
+  });
+  $('rsDouble').addEventListener('click', function(){
+    if (!hasImg) return;
+    resizeTo(Math.min(8192, cv.width * 2), Math.min(8192, cv.height * 2));
+  });
+  /* 图片信息：实时尺寸（显示在查看工具参数行） */
+  function updateImgInfo(){
+    var el = $('imgInfo');
+    if (el) el.textContent = hasImg ? (cv.width + ' × ' + cv.height) : '';
+  }
   /* ===== 画笔 ===== */
   document.querySelectorAll('.swatch').forEach(function(s){
     s.addEventListener('click', function(){
@@ -570,7 +835,7 @@
   $('tColor').addEventListener('input', function(){ textColor = this.value; });
   $('tStroke').addEventListener('click', function(){
     txtStroke = !txtStroke;
-    this.textContent = '描边:' + (txtStroke ? '开' : '关');
+    this.textContent = T('描边:') + (txtStroke ? T('开') : T('关'));
   });
   function showTextPop(){ textPop.style.display = 'block'; txtIn.value = ''; setTimeout(function(){ txtIn.focus(); }, 60); }
   function hideTextPop(){ textPop.style.display = 'none'; pendingTextXY = null; }
@@ -590,7 +855,7 @@
   function placeText(){
     var v = txtIn.value.trim();
     if (!ringPos) { hideTextPop(); hideRing(); return; }
-    if (!v) { toast('请输入文字'); return; }
+    if (!v) { toast(T('请输入文字')); return; }
     pushHist();
     var px = ringPos.x, py = ringPos.y;
     var fs = Math.max(12, Math.round(cv.width * txtSize));
@@ -605,7 +870,7 @@
     ctx.fillStyle = textColor;
     ctx.fillText(v, px, py);
     ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-    toast('已放置文字');
+    toast(T('已放置文字'));
     hideTextPop(); hideRing();
     setTool('view');
   }
@@ -637,7 +902,7 @@
     if (!hasImg) return;
     if (overlays.length) { ensureMerged(); }  /* 动图滤镜需作用含层帧 */
     var s = filterStr();
-    if (s === 'brightness(1) contrast(1) saturate(1)') { toast('滤镜无调整'); return; }
+    if (s === 'brightness(1) contrast(1) saturate(1)') { toast(T('滤镜无调整')); return; }
     pushHist();
     var applyOne = function(c){
       var cx = c.getContext('2d');
@@ -658,7 +923,7 @@
     cv.style.filter = '';
     filters = { bri:100, con:100, sat:100, blur:0 };
     syncFilterUI();
-    toast(srcKind !== 'image' ? '滤镜已应用到全部帧' : '滤镜已应用');
+    toast(srcKind !== 'image' ? T('滤镜已应用到全部帧') : T('滤镜已应用'));
   });
   /* ===== 变换（旋转/翻转） ===== */
   function transformCanvas(fn){
@@ -697,22 +962,22 @@
   $('rotR').addEventListener('click', function(){
     transformCanvas({ w:function(t){ return t.height; }, h:function(t){ return t.width; },
       draw:function(c, t, w, h){ c.translate(w, 0); c.rotate(Math.PI/2); c.drawImage(t, 0, 0); } });
-    toast('已右转 90°');
+    toast(T('已右转 90°'));
   });
   $('rotL').addEventListener('click', function(){
     transformCanvas({ w:function(t){ return t.height; }, h:function(t){ return t.width; },
       draw:function(c, t, w, h){ c.translate(0, h); c.rotate(-Math.PI/2); c.drawImage(t, 0, 0); } });
-    toast('已左转 90°');
+    toast(T('已左转 90°'));
   });
   $('flipH').addEventListener('click', function(){
     transformCanvas({ w:function(t){ return t.width; }, h:function(t){ return t.height; },
       draw:function(c, t, w, h){ c.translate(w, 0); c.scale(-1, 1); c.drawImage(t, 0, 0); } });
-    toast('已水平翻转');
+    toast(T('已水平翻转'));
   });
   $('flipV').addEventListener('click', function(){
     transformCanvas({ w:function(t){ return t.width; }, h:function(t){ return t.height; },
       draw:function(c, t, w, h){ c.translate(0, h); c.scale(1, -1); c.drawImage(t, 0, 0); } });
-    toast('已垂直翻转');
+    toast(T('已垂直翻转'));
   });
   /* ===== 自由旋转（可视化：拖动实时预览，应用才生效）===== */
   var rotPreview = 0, rotBackup = null;
@@ -753,8 +1018,8 @@
   }
   /* 应用：恢复原图后走统一变换管线（动图全帧生效，计入撤销栈） */
   $('rotApply').addEventListener('click', function(){
-    if (!hasImg) { toast('请先上传图片'); return; }
-    if (!rotPreview) { toast('先拖动滑条预览角度'); return; }
+    if (!hasImg) { toast(T('请先上传图片')); return; }
+    if (!rotPreview) { toast(T('先拖动滑条预览角度')); return; }
     var r = rotPreview * Math.PI / 180;
     cancelRotPreview();
     transformCanvas({
@@ -762,10 +1027,10 @@
       h: function(t){ return rotBBox(t.width, t.height, r).h; },
       draw: function(c, t, w, h){ c.translate(w / 2, h / 2); c.rotate(r); c.drawImage(t, -t.width / 2, -t.height / 2); }
     });
-    toast('已旋转 ' + Math.round(r * 180 / Math.PI) + '°');
+    toast(T('已旋转 ') + Math.round(r * 180 / Math.PI) + '°');
   });
   rotFree.addEventListener('input', function(){
-    if (!hasImg) { rotFree.value = 0; toast('请先上传图片'); return; }
+    if (!hasImg) { rotFree.value = 0; toast(T('请先上传图片')); return; }
     rotPreview = +rotFree.value;
     rotFreeV.textContent = rotPreview + '°';
     drawRotPreview();
@@ -831,11 +1096,11 @@
       var k = Math.min(1, 36 / o.cv.height);
       t.width = Math.max(1, Math.round(o.cv.width * k)); t.height = 36;
       t.getContext('2d').drawImage(o.cv, 0, 0, t.width, t.height);
-      t.title = o.name + '（点击选中）';
+      t.title = o.name + T('（点击选中）');
       d.appendChild(t);
       var eye = document.createElement('button');
       eye.className = 'oeye'; eye.textContent = o.visible ? '👁' : '·';
-      eye.title = o.visible ? '隐藏此层' : '显示此层';
+      eye.title = o.visible ? T('隐藏此层') : T('显示此层');
       eye.addEventListener('click', function(e){
         e.stopPropagation();
         o.visible = !o.visible;
@@ -843,7 +1108,7 @@
       });
       d.appendChild(eye);
       var x = document.createElement('button');
-      x.className = 'ox'; x.textContent = '✕'; x.title = '删除此层';
+      x.className = 'ox'; x.textContent = '✕'; x.title = T('删除此层');
       x.addEventListener('click', function(e){
         e.stopPropagation();
         overlays.splice(i, 1);
@@ -866,12 +1131,12 @@
     $('ovScale').value = Math.round(o.scale * 100);
     $('ovScaleV').textContent = Math.round(o.scale * 100) + '%';
   }
-  $('ovAdd').addEventListener('click', function(){ if (!hasImg){ toast('请先上传底图'); return; } ovFile.click(); });
+  $('ovAdd').addEventListener('click', function(){ if (!hasImg){ toast(T('请先上传底图')); return; } ovFile.click(); });
   ovFile.addEventListener('change', function(){
     var files = Array.prototype.slice.call(ovFile.files || []);
     ovFile.value = '';
     if (!files.length) return;
-    if (!hasImg){ toast('请先上传底图'); return; }
+    if (!hasImg){ toast(T('请先上传底图')); return; }
     if (!overlays.length) ovSnapshot();
     var loaded = 0;
     files.forEach(function(f){
@@ -884,11 +1149,11 @@
         c.getContext('2d').drawImage(im, 0, 0);
         var fit = Math.min(1, (cv.width * 0.5) / c.width, (cv.height * 0.5) / c.height);
         overlays.push({ cv: c, x: cv.width / 2, y: cv.height / 2, scale: fit,
-          alpha: 1, visible: true, name: f.name || ('贴图' + (overlays.length + 1)) });
+          alpha: 1, visible: true, name: f.name || (T('贴图') + (overlays.length + 1)) });
         selLayer = overlays.length - 1;
         loaded++;
         redrawOverlays(); refreshOverlayUI();
-        if (loaded === files.length) toast('已导入 ' + loaded + ' 张贴图，拖动调整位置', 2000);
+        if (loaded === files.length) toast(T('已导入 ') + loaded + T(' 张贴图，拖动调整位置'), 2000);
       };
       im.onerror = function(){ URL.revokeObjectURL(url); loaded++; };
       im.src = url;
@@ -917,7 +1182,7 @@
     if (!overlays.length) return;
     overlays = []; selLayer = -1;
     redrawOverlays(); refreshOverlayUI();
-    toast('已清空全部贴图');
+    toast(T('已清空全部贴图'));
   });
   /* 画布拖动贴图：命中检测自顶层向下 */
   cv.addEventListener('pointerdown', function(e){
@@ -971,7 +1236,7 @@
     overlays = []; selLayer = -1; ovBackup = null;
     refreshOverlayUI(); selBox.style.display = 'none';
     updateBtns();
-    toast('已合并 ' + n + ' 个贴图层');
+    toast(T('已合并 ') + n + T(' 个贴图层'));
   }
   function ensureMerged(){ if (overlays.length) mergeOverlays(); }
   function resetOverlays(){
@@ -980,11 +1245,11 @@
   }
   /* ===== 导出系统：格式转换 ===== */
   var EXP_FMT = {
-    png:  { ext:'png',  mime:'image/png',   label:'PNG',  desc:'无损图片' },
-    jpg:  { ext:'jpg',  mime:'image/jpeg',  label:'JPG',  desc:'体积更小' },
-    webp: { ext:'webp', mime:'image/webp',  label:'WebP', desc:'高效压缩' },
-    gif:  { ext:'gif',  mime:'image/gif',   label:'GIF',  desc:'动图' },
-    webm: { ext:'webm', mime:'video/webm',  label:'WEBM', desc:'视频' }
+    png:  { ext:'png',  mime:'image/png',   label:'PNG',  desc:T('无损图片') },
+    jpg:  { ext:'jpg',  mime:'image/jpeg',  label:'JPG',  desc:T('体积更小') },
+    webp: { ext:'webp', mime:'image/webp',  label:'WebP', desc:T('高效压缩') },
+    gif:  { ext:'gif',  mime:'image/gif',   label:'GIF',  desc:T('动图') },
+    webm: { ext:'webm', mime:'video/webm',  label:'WEBM', desc:T('视频') }
   };
   function exportTargets(){
     if (srcKind === 'video') return ['webm', 'gif'];
@@ -999,7 +1264,7 @@
     var menu = $(mode === 'dl' ? 'expMenu' : 'expMenuRepo');
     if (!menu) return;
     var ts = exportTargets();
-    var head = mode === 'dl' ? '导出为' : '存入仓库为';
+    var head = mode === 'dl' ? T('导出为') : T('存入仓库为');
     var html = '<div class="eh">' + head + '</div>';
     ts.forEach(function(fmt){
       var f = EXP_FMT[fmt];
@@ -1029,21 +1294,21 @@
     }
   }
   function deliver(blob, fmt, mode){
-    if (!blob) { toast('导出失败'); return; }
+    if (!blob) { toast(T('导出失败')); return; }
     var name = exportName(fmt);
     if (mode === 'repo'){
       var btn = $('repoBtn'); btn.disabled = true;
-      toast('正在存入仓库…', 1500);
+      toast(T('正在存入仓库…'), 1500);
       var onAck = function(e){
         var d = e.data;
         if (!d || !d.__repoSaveAck) return;
         window.removeEventListener('message', onAck);
         btn.disabled = false;
-        toast(d.__repoSaveAck ? '✓ 已存入仓库：' + d.msg : '存仓库失败：' + d.msg, 2600);
+        toast(d.__repoSaveAck ? T('✓ 已存入仓库：') + d.msg : T('存仓库失败：') + d.msg, 2600);
       };
       window.addEventListener('message', onAck);
       try { parent.postMessage({ __repoSave:true, blob:blob, name:name }, '*'); }
-      catch(err){ window.removeEventListener('message', onAck); btn.disabled = false; toast('存仓库失败'); }
+      catch(err){ window.removeEventListener('message', onAck); btn.disabled = false; toast(T('存仓库失败')); }
       setTimeout(function(){ window.removeEventListener('message', onAck); btn.disabled = false; }, 20000);
     } else {
       var a = document.createElement('a');
@@ -1051,12 +1316,12 @@
       a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function(){ URL.revokeObjectURL(a.href); }, 8000);
-      toast('已导出 ' + EXP_FMT[fmt].label + '（' + (blob.size > 1048576 ? (blob.size/1048576).toFixed(1) + ' MB' : Math.round(blob.size/1024) + ' KB') + '）');
+      toast(T('已导出 ') + EXP_FMT[fmt].label + '（' + (blob.size > 1048576 ? (blob.size/1048576).toFixed(1) + ' MB' : Math.round(blob.size/1024) + ' KB') + '）');
     }
   }
   /* GIF 编码（gif.js CDN + worker blob；失败提示） */
   function encodeGIF(cb){
-    toast('正在编码 GIF…', 4000);
+    toast(T('正在编码 GIF…'), 4000);
     ensureFrameSaved();
     var w = cv.width, h = cv.height;
     var finish = function(){
@@ -1068,7 +1333,7 @@
             var gif = new GIF({ workers: 2, quality: 10, width: w, height: h, workerScript: wurl });
             frames.forEach(function(f){ gif.addFrame(f.cv, { delay: frameDelay, copy: true }); });
             gif.on('progress', function(p){
-              toast('正在编码 GIF… ' + Math.round(p * 100) + '%', 800);
+              toast(T('正在编码 GIF… ') + Math.round(p * 100) + '%', 800);
             });
             gif.on('finished', function(blob){
               URL.revokeObjectURL(wurl);
@@ -1076,20 +1341,20 @@
             });
             gif.render();
           })
-          .catch(function(){ toast('GIF 编码器加载失败（需要网络）', 3000); });
-      } catch(e){ toast('GIF 编码失败', 2400); }
+          .catch(function(){ toast(T('GIF 编码器加载失败（需要网络）'), 3000); });
+      } catch(e){ toast(T('GIF 编码失败'), 2400); }
     };
     if (window.GIF) { finish(); return; }
     var s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js';
     s.onload = finish;
-    s.onerror = function(){ toast('GIF 编码器加载失败（需要网络）', 3000); };
+    s.onerror = function(){ toast(T('GIF 编码器加载失败（需要网络）'), 3000); };
     document.head.appendChild(s);
   }
   /* WebM 视频录制（captureStream + MediaRecorder） */
   function recordWebM(cb){
-    if (typeof MediaRecorder === 'undefined') { toast('当前浏览器不支持视频录制'); return; }
-    toast('正在生成视频…', 4000);
+    if (typeof MediaRecorder === 'undefined') { toast(T('当前浏览器不支持视频录制')); return; }
+    toast(T('正在生成视频…'), 4000);
     ensureFrameSaved();
     var out = document.createElement('canvas');
     out.width = cv.width; out.height = cv.height;
@@ -1102,7 +1367,7 @@
     });
     var rec;
     try { rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); }
-    catch(e){ toast('视频录制初始化失败'); return; }
+    catch(e){ toast(T('视频录制初始化失败')); return; }
     var chunks = [];
     rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
     rec.onstop = function(){ cb(new Blob(chunks, { type:'video/webm' })); };
@@ -1142,14 +1407,38 @@
       if (b) b.classList.remove('on');
     }
   });
+  /* ===== 内嵌确认弹窗（替代原生 confirm，样式与主题一致）===== */
+  function embeddedConfirm(msg) {
+    return new Promise(function (resolve) {
+      var ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;';
+      var box = document.createElement('div');
+      box.style.cssText = 'background:#252526;color:#ddd;border-radius:12px;padding:22px 24px;max-width:82%;text-align:center;font-size:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);';
+      var txt = document.createElement('div');
+      txt.style.cssText = 'margin-bottom:16px;word-break:break-word;line-height:1.6;';
+      txt.textContent = msg;
+      var row = document.createElement('div');
+      var okB = document.createElement('button');
+      okB.textContent = T('确定');
+      okB.style.cssText = 'margin:0 6px;padding:8px 24px;border:none;border-radius:8px;background:#f44336;color:#fff;cursor:pointer;font-size:14px;';
+      var cB = document.createElement('button');
+      cB.textContent = T('取消');
+      cB.style.cssText = 'margin:0 6px;padding:8px 24px;border:none;border-radius:8px;background:#3a3a3a;color:#ddd;cursor:pointer;font-size:14px;';
+      okB.addEventListener('click', function () { document.body.removeChild(ov); resolve(true); });
+      cB.addEventListener('click', function () { document.body.removeChild(ov); resolve(false); });
+      row.appendChild(cB); row.appendChild(okB);
+      box.appendChild(txt); box.appendChild(row); ov.appendChild(box);
+      document.body.appendChild(ov);
+    });
+  }
   /* ===== 还原 ===== */
-  $('resetBtn').addEventListener('click', function(){
+  $('resetBtn').addEventListener('click', async function(){
     if (!origData && !origFile) return;
-    if (!window.confirm('确定还原为原图？所有编辑将丢失')) return;
+    if (!(await embeddedConfirm(T('确定还原为原图？所有编辑将丢失')))) return;
     stopPlay();
     if (origFile) { loadFile(origFile, false); }
     else if (origData) { loadImage(origData, false); }
-    toast('已还原');
+    toast(T('已还原'));
   });
   /* 调试钩子（导出内部状态） */
   window.__imgDbg = function(){ return { tool:tool, drawing:drawing, hasImg:hasImg, zoom:zoom, fit:fit, brush:brush, histN:hist.length, ghistN:ghist.length, srcKind:srcKind, nFrames:frames.length, curFrame:curFrame, delay:frameDelay, cw:cv.width, ch:cv.height }; };

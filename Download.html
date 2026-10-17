@@ -8,7 +8,8 @@
 /* ===== 1. 声明字体 ===== */
 @font-face {
   font-family: 'MyFont';
-  src: url('1.woff2') format('woff2');
+  /* ✦ 修改：字体路径改为 font/zt.woff2 */
+  src: url('font/zt.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -47,14 +48,60 @@ body{
   font-family:inherit;
 }
 .btn:active{transform:scale(.96);opacity:.85}
-#dl{margin-top:36px}                 /* 下载按钮保持原间距 */
-.btn.ghost{                          /* 更新按钮：次级描边样式 */
+#dl{margin-top:36px}
+.btn.ghost{
   background:transparent;
   border:1px solid rgba(255,255,255,.18);
   box-shadow:none;
   color:#c8cdd8;
 }
 .btn.ghost:active{opacity:.6}
+
+/* ===== 角落按钮通用风格 ===== */
+/* ✦ 新增：左上角下载源码按钮（胶囊形） */
+#srcBtn{
+  position:fixed;
+  top:20px;left:20px;
+  height:44px;
+  padding:0 18px;
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+  color:#c8cdd8;
+  font-size:14px;font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;gap:8px;
+  z-index:50;
+  transition:transform .15s,opacity .15s;
+}
+#srcBtn:active{transform:scale(.94);opacity:.8}
+#srcBtn svg{flex-shrink:0}
+
+/* ✦ 新增：小屏幕缩小按钮，避免两角按钮拥挤 */
+@media (max-width:400px){
+  #srcBtn{padding:0 13px;font-size:13px;gap:6px}
+}
+
+/* 右上角圆形语言切换按钮 */
+#langBtn{
+  position:fixed;
+  top:20px;right:20px;
+  width:44px;height:44px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+  color:#c8cdd8;
+  font-size:14px;font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:50;
+  transition:transform .15s,opacity .15s;
+}
+#langBtn:active{transform:scale(.9);opacity:.8}
 
 /* ===== 更新日志弹窗 ===== */
 .overlay{
@@ -111,10 +158,6 @@ body{
 }
 .sec-t .tag{font-size:11px;padding:1px 8px;border-radius:8px;color:#fff}
 .sec-t.red .tag{background:#ef4444}
-.sec-t.green .tag{background:#22c55e}
-.sec-t.yellow .tag{background:#f59e0b}
-.sec-t.blue .tag{background:#3b82f6}
-.sec ul{list-style:none}
 .sec li{
   font-size:13px;color:#c2c8d4;
   line-height:1.55;
@@ -137,32 +180,46 @@ body{
 </head>
 <body>
 
-<img src="tb2.png" alt="Ats" class="logo">
-<div class="name">Ats编辑</div>
-<div class="ver">版本:1.14 作者:Ants</div>
+<!-- ✦ 新增：左上角下载源码按钮（SVG 图标 + 文字，文字可被 i18n 替换） -->
+<button id="srcBtn" title="下载源码">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3v12"/>
+    <path d="M7 11l5 5 5-5"/>
+    <path d="M4 21h16"/>
+  </svg>
+  <span data-i18n="srcBtn">下载源码</span>
+</button>
 
-<button class="btn" id="dl">下载 APK</button>
-<button class="btn ghost" id="up">查看更新内容</button>
+<!-- 右上角语言切换按钮，默认显示「中」 -->
+<button id="langBtn" title="Switch Language">中</button>
+
+<img src="tb.png" alt="Ats" class="logo">
+<div class="name" data-i18n="appName">Ats编辑</div>
+<div class="ver" data-i18n="version">版本:1.15 作者:Ants</div>
+
+<button class="btn" id="dl" data-i18n="download">下载 APK</button>
+<button class="btn ghost" id="up" data-i18n="viewUpdates">查看更新内容</button>
 
 <!-- 更新日志弹窗 -->
 <div class="overlay" id="overlay">
   <div class="sheet" role="dialog" aria-label="更新内容">
     <div class="sheet-head">
-      <span class="t">更新内容</span>
-      <span class="v">v1.14</span>
+      <span class="t" data-i18n="sheetTitle">更新内容</span>
+      <span class="v">v1.15</span>
       <button class="sheet-close" id="closeBtn" title="关闭">✕</button>
     </div>
     <div class="sheet-body">
       <div class="sec">
-        <div class="sec-t red"><span class="tag">大致如下</span></div>
+        <div class="sec-t red"><span class="tag" data-i18n="tagOverview">大致如下</span></div>
         <ul>
-          <li class="fix">新增一些工具1.文件仓库2.视图编辑</li>
-          <li class="fix">修复了一些已知bug</li>
-          <li class="fix">增加工具对于浅色模式的兼容</li>
-          <li class="fix">增加字体缩放功能</li>
+          <li class="fix" data-i18n="update1">增加液态应用界面、Ai编辑、源码编辑以及优化一些功能</li>
+          <li class="fix" data-i18n="update2">修复了一些已知bug</li>
+          <li class="fix"></li>
+          <li class="fix" data-i18n="update3">做了所有工具英文适配</li>
         </ul>
       </div>
-      <div class="foot">
+      <div class="foot" data-i18n-html="footer">
      </>感谢使用 Ats编辑💙<br>
   如果应用端无法下载应用请转至官网<br>
   https://ats-bianjiqi.github.io/点击工具找到列表里的下载应用下载</div>
@@ -171,14 +228,106 @@ body{
 </div>
 
 <script>
-/* 下载 APK */
-document.getElementById('dl').onclick = function () {
+/* ===== 中英文切换逻辑（data-i18n 字典方案） ===== */
+(function () {
+  var i18n = {
+    zh: {
+      appName:    'Ats编辑',
+      version:    '版本:1.15 作者:Ants',
+      download:   '下载 APK',
+      viewUpdates:'查看更新内容',
+      sheetTitle: '更新内容',
+      tagOverview:'大致如下',
+      update1: '增加液态应用界面、Ai编辑、源码编辑以及优化一些功能',
+      update2: '修复了一些已知bug',
+      update3: '做了所有工具英文适配',
+      footer:  '</>感谢使用 Ats编辑💙<br>如果应用端无法下载应用请转至官网<br>https://ats-bianjiqi.github.io/点击工具找到列表里的下载应用下载',
+      /* ✦ 新增 */
+      srcBtn:  '下载源码',
+      srcTip:  '下载源码',
+      langBtn: '中',
+      closeTip: '关闭'
+    },
+    en: {
+      appName:    'Ats Editor',
+      version:    'Version:1.15 Author:Ants',
+      download:   'Download APK',
+      viewUpdates:'View Updates',
+      sheetTitle: 'Updates',
+      tagOverview:'Overview',
+      update1: 'Added liquid app UI, AI editing, source code editing and some optimizations',
+      update2: 'Fixed some known bugs',
+      update3: 'Localized all tools into English',
+      footer:  '</>Thanks for using Ats Editor💙<br>If the app can\'t be downloaded in the client, please visit the official site<br>https://ats-bianjiqi.github.io/ Click "Tools" and find "Download App" in the list to download',
+      /* ✦ 新增 */
+      srcBtn:  'Source',
+      srcTip:  'Download Source Code',
+      langBtn: 'En',
+      closeTip: 'Close'
+    }
+  };
+
+  var currentLang = 'zh';          // 默认中文
+  var langBtn = document.getElementById('langBtn');
+  var srcBtn = document.getElementById('srcBtn');   /* ✦ 新增 */
+
+  function applyLang (lang) {
+    currentLang = lang;
+    var dict = i18n[lang];
+
+    // 同步 <html lang> 和 <title>
+    document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : 'en');
+    document.title = dict.appName;
+
+    // 批量替换纯文本节点
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+
+    // 批量替换含 <br> 的富文本节点
+    document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-html');
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
+    });
+
+    // 关闭按钮的悬浮提示
+    document.getElementById('closeBtn').title = dict.closeTip;
+
+    /* ✦ 新增：源码按钮的悬浮提示 */
+    srcBtn.title = dict.srcTip;
+
+    // 切换按钮自身的显示：中 ↔ En
+    langBtn.textContent = dict.langBtn;
+  }
+
+  langBtn.addEventListener('click', function () {
+    applyLang(currentLang === 'zh' ? 'en' : 'zh');
+  });
+
+  // 初始化（默认中文）
+  applyLang('zh');
+})();
+
+/* ===== 下载功能 ===== */
+/* ✦ 修改：抽出通用下载函数，APK 与源码共用 */
+function downloadFile (fileName) {
   var a = document.createElement('a');
-  a.href = '代码编辑.apk';
-  a.download = '代码编辑.apk';
+  a.href = fileName;
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+/* 下载 APK */
+document.getElementById('dl').onclick = function () {
+  downloadFile('代码编辑.apk');
+};
+
+/* ✦ 新增：左上角下载源码 index.zip */
+document.getElementById('srcBtn').onclick = function () {
+  downloadFile('index.zip');
 };
 
 /* ===== 更新日志弹窗 ===== */
@@ -193,12 +342,10 @@ document.getElementById('dl').onclick = function () {
   openBtn.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
 
-  /* 点击遮罩空白处关闭（点弹窗内部不关） */
   overlay.addEventListener('click', function (e) {
     if (e.target === overlay) close();
   });
 
-  /* Esc 关闭 */
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && overlay.classList.contains('show')) close();
   });

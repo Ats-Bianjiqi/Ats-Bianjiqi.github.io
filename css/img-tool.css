@@ -88,6 +88,10 @@
   .pbtn.go{background:linear-gradient(180deg,#2dd4bf,#14a894); border-color:transparent; color:#04251d; font-weight:700;}
   .pbtn.warn{background:rgba(245,158,11,.15); border-color:rgba(245,158,11,.4); color:var(--warn);}
   .colorIn{width:30px; height:30px; padding:0; border:1px solid var(--line-strong); border-radius:8px; background:none; cursor:pointer;}
+  .numin{width:76px; padding:6px 8px; border:1px solid var(--line-strong); border-radius:8px; background:rgba(8,14,26,.6); color:var(--text); font:inherit; font-size:12px; text-align:center; flex:none;}
+  .numin:focus{border-color:var(--accent); outline:none;}
+  .rs-lock{display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--dim); cursor:pointer; flex:none; user-select:none;}
+  .rs-lock input{accent-color:var(--accent); width:15px; height:15px;}
   .seg{display:flex; border:1px solid var(--line-strong); border-radius:8px; overflow:hidden; flex:none;}
   .seg button{padding:6px 10px; border:none; background:transparent; color:var(--dim); font:inherit; font-size:11.5px; cursor:pointer;}
   .seg button.on{background:rgba(59,130,246,.25); color:var(--accent-l);}
